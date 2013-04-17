@@ -28,7 +28,7 @@
         </dependency>
 	<dependency>
             <groupId>com.griddynamics</groupId>
-            <artifactId>photo.gallery.persistance</artifactId>
+            <artifactId>photo.gallery.persistence</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

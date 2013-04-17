@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.griddynamics</groupId>
-  <artifactId>photo.gallery.persistance</artifactId>
+  <artifactId>photo.gallery.persistence</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>photo.gallery.persistance</name>
+  <name>photo.gallery.persistence</name>
   <url>http://maven.apache.org</url>
 
   <properties>
