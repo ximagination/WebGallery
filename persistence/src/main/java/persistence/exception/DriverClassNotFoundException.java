@@ -6,9 +6,17 @@ package persistence.exception;
  * Date: 4/18/13
  * Time: 6:08 PM
  */
-public class DriverClassNotFoundException extends D2DatabasePersistenceException {
+public class DriverClassNotFoundException extends PersistenceException {
 
-    public DriverClassNotFoundException(String why) {
-        super(why);
+    public DriverClassNotFoundException(String message) {
+        super(message);
+    }
+
+    public DriverClassNotFoundException(Throwable error) {
+        super(error);
+    }
+
+    public DriverClassNotFoundException(String message, Throwable error) {
+        super(message, error);
     }
 }

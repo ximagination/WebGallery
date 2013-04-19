@@ -18,14 +18,14 @@ public class UserDAOFactory {
     }
 
     /**
-     * @param typeOfSource id of database
-     * @return DAO of user
-     * @throws RuntimeException if unknown source
+     * @param typeOfSource type of database
+     * @return DAO of user associated with typeOfSource
+     * @throws UnknownDataSourceException if unknown source
      * @see DataSource
      */
-    public static UserDAO getDao(int typeOfSource) {
+    public static UserDAO getDao(DataSource typeOfSource) {
         switch (typeOfSource) {
-            case DataSource.H2:
+            case JDBC:
                 return new UserDAOImpl();
 
             default:

@@ -6,10 +6,18 @@ package persistence.exception;
  * Date: 4/18/13
  * Time: 3:49 PM
  */
-public class EmptyFieldException extends ValidateException {
+public class EmptyFieldException extends ValidationException {
 
-    public EmptyFieldException(String why) {
-        super(why);
+    public EmptyFieldException(String message) {
+        super(message);
+    }
+
+    public EmptyFieldException(Throwable error) {
+        super(error);
+    }
+
+    public EmptyFieldException(String message, Throwable error) {
+        super(message, error);
     }
 
 }

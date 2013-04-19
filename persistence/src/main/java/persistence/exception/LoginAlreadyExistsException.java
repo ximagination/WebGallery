@@ -6,9 +6,18 @@ package persistence.exception;
  * Date: 4/18/13
  * Time: 4:02 PM
  */
-public class LoginAlreadyExistsException extends ValidateException {
+public class LoginAlreadyExistsException extends ValidationException {
 
-    public LoginAlreadyExistsException(String what) {
-        super(what);
+    public LoginAlreadyExistsException(String message) {
+        super(message);
     }
+
+    public LoginAlreadyExistsException(Throwable error) {
+        super(error);
+    }
+
+    public LoginAlreadyExistsException(String message, Throwable error) {
+        super(message, error);
+    }
+
 }

@@ -4,6 +4,7 @@ import persistence.connectAndSource.Connector;
 import persistence.dao.UserDAO;
 import persistence.exception.*;
 import persistence.struct.User;
+import persistence.utils.DatabaseUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class UserDAOImpl implements UserDAO {
     private static final int LOGIN_LIMIT = 32;
     private static final int PASSWORD_LIMIT = 32;
 
-    public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT," +
+    private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT," +
             LOGIN + " VARCHAR(" + LOGIN_LIMIT + ") NOT NULL UNIQUE," + PASSWORD + " VARCHAR(" + PASSWORD_LIMIT + ") NOT NULL)";
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "(" +
             LOGIN + "," + PASSWORD + ") VALUES (?,?)";
@@ -33,7 +34,32 @@ public class UserDAOImpl implements UserDAO {
     private static final String BY_PRIMARY = "SELECT * FROM " + TABLE_NAME + " WHERE " + ID + "=?";
 
     @Override
-    public void insert(User user) throws EmptyFieldException, ToLongFieldException, LoginAlreadyExistsException {
+    public void create() throws PersistenceException {
+        Connection c = getConnection();
+        Statement stat = null;
+
+        try {
+            try {
+                stat = c.createStatement();
+
+                /*
+                Create table or throw
+                 */
+                stat.execute(CREATE_TABLE);
+            } catch (SQLException e) {
+                /*
+                User invoke method create() multiple times. Table already exists.
+                 */
+                throw new TableAlreadyExistsException(e);
+            }
+        } finally {
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+    @Override
+    public void insert(User user) throws ValidationException {
 
         String login = user.getLogin();
         String password = user.getPassword();
@@ -41,28 +67,26 @@ public class UserDAOImpl implements UserDAO {
         validateLogin(login);
         validatePassword(password);
 
-        Connection c = Connector.getInstance().newConnection();
+        Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isNotInserted;
+            boolean isInserted;
             try {
                 stat = c.prepareStatement(INSERT);
 
                 stat.setString(1, login);
                 stat.setString(2, password);
 
-                isNotInserted = stat.executeUpdate() == 0;
+                isInserted = stat.executeUpdate() > 0;
             } catch (SQLException e) {
-                e.printStackTrace();
-
                 /*
                 This exception occurs because in database was constraint
                 when insert user (login,password).
                 Login is unique and user try to get already exists login.
                 We throw validate exception.
                  */
-                throw new LoginAlreadyExistsException("Login " + login + " is busy.");
+                throw new LoginAlreadyExistsException("Login " + login + " is busy.", e);
             }
 
             /*
@@ -70,31 +94,18 @@ public class UserDAOImpl implements UserDAO {
              This error occurs because user want register with login which already exists
              and JDBC driver don't throw JdbcSQLException or SQLException.
              */
-            if (isNotInserted) {
+            if (!isInserted) {
                 throw new LoginAlreadyExistsException("Login " + login + " is busy.");
             }
 
         } finally {
-            if (stat != null) {
-                try {
-                    stat.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
         }
     }
 
     @Override
-    public void update(User user) throws IncorrectPrimaryKeyException, EmptyFieldException, ToLongFieldException, RecordNotFoundException {
+    public void update(User user) throws ValidationException {
         int id = user.getId();
         String login = user.getLogin();
         String password = user.getPassword();
@@ -103,99 +114,145 @@ public class UserDAOImpl implements UserDAO {
         validateLogin(login);
         validatePassword(password);
 
-        Connection c = Connector.getInstance().newConnection();
+        Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isNotUpdated;
+            boolean isUpdated;
             try {
                 stat = c.prepareStatement(UPDATE);
 
                 stat.setString(1, password);
                 stat.setInt(2, id);
 
-                isNotUpdated = stat.executeUpdate() == 0;
+                isUpdated = stat.executeUpdate() > 0;
             } catch (SQLException e) {
-                e.printStackTrace();
-
                 /*
                 Unknown exception. Must not be occurs.
                 */
-                throw new D2DatabasePersistenceException(e);
+                throw new PersistenceException(e);
             }
 
-            /*
+             /*
              In update method user can't change login and constraint can't occurs by login field(Login is unique).
              This error occurs because user not found by id
              */
-            if (isNotUpdated) {
+            if (!isUpdated) {
                 throw new RecordNotFoundException("Record by id=" + id + " not found and user can't be updated");
             }
 
         } finally {
-            if (stat != null) {
-                try {
-                    stat.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
         }
     }
 
     @Override
-    public void delete(Integer id) throws IncorrectPrimaryKeyException, RecordNotFoundException {
+    public void delete(Integer id) throws ValidationException {
         validatePrimary(id);
 
-        Connection c = Connector.getInstance().newConnection();
+        Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isNotDeleted;
+            boolean isDeleted;
             try {
                 stat = c.prepareStatement(DELETE);
 
                 stat.setInt(1, id);
 
-                isNotDeleted = stat.executeUpdate() == 0;
+                isDeleted = stat.executeUpdate() > 0;
             } catch (SQLException e) {
-                e.printStackTrace();
-
                 /*
                 Unknown exception. Must not be occurs.
                 */
-                throw new D2DatabasePersistenceException(e);
+                throw new PersistenceException(e);
             }
 
-            if (isNotDeleted) {
+            if (!isDeleted) {
                 throw new RecordNotFoundException("Record by id=" + id + " not found and user can't be deleted");
             }
 
         } finally {
-            if (stat != null) {
-                try {
-                    stat.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+    @Override
+    public List<User> fetch() {
+        Connection c = getConnection();
+        Statement stat = null;
+        ResultSet rs = null;
+
+        try {
+            stat = c.createStatement();
+            rs = stat.executeQuery(FETCH);
+
+            List<User> result = new ArrayList<User>();
+            while (rs.next()) {
+                result.add(readUserFromResultSet(rs));
+            }
+            return result;
+
+        } catch (SQLException e) {
+             /*
+            Unknown exception. Must not be occurs.
+             */
+            throw new PersistenceException(e);
+
+        } finally {
+            DatabaseUtils.closeQuietly(rs);
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+    private static User readUserFromResultSet(ResultSet rs) throws SQLException {
+        User user = new User();
+
+        user.setId(rs.getInt(1));
+        user.setLogin(rs.getString(2));
+        user.setPassword(rs.getString(3));
+
+        return user;
+    }
+
+    @Override
+    public User fetchByPrimary(Integer id) throws IncorrectPrimaryKeyException {
+        validatePrimary(id);
+
+        Connection c = getConnection();
+        PreparedStatement stat = null;
+        ResultSet rs = null;
+
+        try {
+            stat = c.prepareStatement(BY_PRIMARY);
+            stat.setInt(1, id);
+
+            rs = stat.executeQuery();
+
+            if (rs.next()) {
+                return readUserFromResultSet(rs);
             }
 
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
+            return null;
+
+        } catch (SQLException e) {
+            /*
+            Unknown exception. Must not be occurs.
+             */
+            throw new PersistenceException(e);
+
+        } finally {
+            DatabaseUtils.closeQuietly(rs);
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
         }
+    }
+
+    private Connection getConnection() {
+        return Connector.getInstance().newConnection();
     }
 
     private void validatePrimary(Integer id) throws IncorrectPrimaryKeyException {
@@ -212,126 +269,7 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
-    @Override
-    public List<User> fetch() {
-        Connection c = Connector.getInstance().newConnection();
-        Statement stat = null;
-        ResultSet rs = null;
-
-        try {
-            stat = c.createStatement();
-            rs = stat.executeQuery(FETCH);
-
-            ArrayList<User> array = new ArrayList<User>();
-            while (rs.next()) {
-                User user = new User();
-
-                user.setId(rs.getInt(1));
-                user.setLogin(rs.getString(2));
-                user.setPassword(rs.getString(3));
-
-                array.add(user);
-            }
-
-            return array;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-             /*
-            Unknown exception. Must not be occurs.
-             */
-            throw new D2DatabasePersistenceException(e);
-
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-
-            if (stat != null) {
-                try {
-                    stat.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-        }
-    }
-
-    @Override
-    public User fetchByPrimary(Integer id) throws IncorrectPrimaryKeyException {
-        validatePrimary(id);
-
-        Connection c = Connector.getInstance().newConnection();
-        PreparedStatement stat = null;
-        ResultSet rs = null;
-
-        try {
-            stat = c.prepareStatement(BY_PRIMARY);
-            stat.setInt(1, id);
-
-            rs = stat.executeQuery();
-
-            if (rs.next()) {
-                User user = new User();
-
-                user.setId(rs.getInt(1));
-                user.setLogin(rs.getString(2));
-                user.setPassword(rs.getString(3));
-
-                return user;
-            }
-
-            return null;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-            /*
-            Unknown exception. Must not be occurs.
-             */
-            throw new D2DatabasePersistenceException(e);
-
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-
-            if (stat != null) {
-                try {
-                    stat.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    //ignore
-                }
-            }
-        }
-    }
-
-    private void validateLogin(String login) throws EmptyFieldException, ToLongFieldException {
+    private void validateLogin(String login) throws ValidationException {
         if (login == null || login.isEmpty()) {
             throw new EmptyFieldException("Field login must not be empty.");
         }
@@ -341,7 +279,7 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
-    private void validatePassword(String password) throws EmptyFieldException, ToLongFieldException {
+    private void validatePassword(String password) throws ValidationException {
         if (password == null || password.isEmpty()) {
             throw new EmptyFieldException("Field password must not be empty.");
         }

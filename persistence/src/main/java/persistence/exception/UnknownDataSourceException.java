@@ -8,8 +8,16 @@ package persistence.exception;
  */
 public class UnknownDataSourceException extends RuntimeException {
 
-    public UnknownDataSourceException(String why) {
-        super(why);
+    public UnknownDataSourceException(String message) {
+        super(message);
+    }
+
+    public UnknownDataSourceException(Throwable error) {
+        super(error);
+    }
+
+    public UnknownDataSourceException(String message, Throwable error) {
+        super(message, error);
     }
 
 }

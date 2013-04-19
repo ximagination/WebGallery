@@ -20,8 +20,7 @@ public class Connector {
         try {
             Class.forName("org.h2.Driver");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new DriverClassNotFoundException("Driver 'org.h2.Driver' not found " + e.getMessage());
+            throw new DriverClassNotFoundException("Driver 'org.h2.Driver' not found ", e);
         }
     }
 
@@ -49,7 +48,7 @@ public class Connector {
         try {
             return DriverManager.getConnection(URL);
         } catch (SQLException e) {
-            throw new NoConnectionToDatabaseException("Can't instantiate connection to '" + URL + "' database " + e.getMessage());
+            throw new NoConnectionToDatabaseException("Can't instantiate connection to '" + URL + "' database ", e);
         }
     }
 }

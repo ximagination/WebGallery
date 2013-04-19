@@ -1,6 +1,7 @@
 package persistence.dao;
 
-import persistence.exception.ValidateException;
+import persistence.exception.PersistenceException;
+import persistence.exception.ValidationException;
 
 import java.util.List;
 
@@ -11,13 +12,16 @@ import java.util.List;
  * Time: 10:45 AM
  */
 public interface BaseDAO<T, K> {
-    void insert(T o) throws ValidateException;
 
-    void update(T o) throws ValidateException;
+    void create() throws PersistenceException;
 
-    void delete(K id) throws ValidateException;
+    void insert(T o) throws ValidationException;
+
+    void update(T o) throws ValidationException;
+
+    void delete(K id) throws ValidationException;
 
     List<T> fetch();
 
-    T fetchByPrimary(K id) throws ValidateException;
+    T fetchByPrimary(K id) throws ValidationException;
 }

@@ -11,7 +11,9 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
-    private int _id;
+    private static final long serialVersionUID = 4160338165120216995L;
+
+    private int id;
     private String login;
     private String password;
 
@@ -32,18 +34,18 @@ public class User implements Serializable {
     }
 
     public int getId() {
-        return _id;
+        return id;
     }
 
-    public void setId(int _id) {
-        this._id = _id;
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("User");
-        sb.append("{_id=").append(_id);
+        sb.append("{id=").append(id);
         sb.append(", login='").append(login).append('\'');
         sb.append(", password='").append(password).append('\'');
         sb.append('}');
