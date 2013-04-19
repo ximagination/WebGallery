@@ -8,21 +8,25 @@ package persistence.exception;
  */
 public class ToLongFieldException extends ValidationException {
 
-    public final int maxSizeOfField;
+    private int maxSizeOfField;
 
     public ToLongFieldException(String message, int maxSize) {
         super(message);
         this.maxSizeOfField = maxSize;
     }
 
-    public ToLongFieldException(Throwable error, int maxSize) {
-        super(error);
+    public ToLongFieldException(Throwable cause, int maxSize) {
+        super(cause);
         this.maxSizeOfField = maxSize;
     }
 
-    public ToLongFieldException(String message, Throwable error, int maxSize) {
-        super(message, error);
+    public ToLongFieldException(String message, Throwable cause, int maxSize) {
+        super(message, cause);
         this.maxSizeOfField = maxSize;
+    }
+
+    public int getMaxSizeOfField() {
+        return maxSizeOfField;
     }
 
 }

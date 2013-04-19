@@ -12,12 +12,12 @@ public class LoginAlreadyExistsException extends ValidationException {
         super(message);
     }
 
-    public LoginAlreadyExistsException(Throwable error) {
-        super(error);
+    public LoginAlreadyExistsException(Throwable cause) {
+        super(cause);
     }
 
-    public LoginAlreadyExistsException(String message, Throwable error) {
-        super(message, error);
+    public LoginAlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

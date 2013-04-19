@@ -12,11 +12,11 @@ public class ValidationException extends Exception {
         super(message);
     }
 
-    public ValidationException(Throwable error) {
-        super(error);
+    public ValidationException(Throwable cause) {
+        super(cause);
     }
 
-    public ValidationException(String message, Throwable error) {
-        super(message, error);
+    public ValidationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

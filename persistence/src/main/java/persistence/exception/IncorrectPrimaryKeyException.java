@@ -12,11 +12,11 @@ public class IncorrectPrimaryKeyException extends ValidationException {
         super(message);
     }
 
-    public IncorrectPrimaryKeyException(Throwable error) {
-        super(error);
+    public IncorrectPrimaryKeyException(Throwable cause) {
+        super(cause);
     }
 
-    public IncorrectPrimaryKeyException(String message, Throwable error) {
-        super(message, error);
+    public IncorrectPrimaryKeyException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

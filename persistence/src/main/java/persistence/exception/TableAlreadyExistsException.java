@@ -12,11 +12,11 @@ public class TableAlreadyExistsException extends PersistenceException {
         super(message);
     }
 
-    public TableAlreadyExistsException(String message, Throwable error) {
-        super(message, error);
+    public TableAlreadyExistsException(Throwable cause) {
+        super(cause);
     }
 
-    public TableAlreadyExistsException(Throwable error) {
-        super(error);
+    public TableAlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

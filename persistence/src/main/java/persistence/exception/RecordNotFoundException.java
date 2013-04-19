@@ -12,12 +12,12 @@ public class RecordNotFoundException extends ValidationException {
         super(what);
     }
 
-    public RecordNotFoundException(Throwable error) {
-        super(error);
+    public RecordNotFoundException(Throwable cause) {
+        super(cause);
     }
 
-    public RecordNotFoundException(String message, Throwable error) {
-        super(message, error);
+    public RecordNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
 

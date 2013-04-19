@@ -12,11 +12,11 @@ public class NoConnectionToDatabaseException extends PersistenceException {
         super(why);
     }
 
-    public NoConnectionToDatabaseException(Throwable error) {
-        super(error);
+    public NoConnectionToDatabaseException(Throwable cause) {
+        super(cause);
     }
 
-    public NoConnectionToDatabaseException(String message, Throwable error) {
-        super(message, error);
+    public NoConnectionToDatabaseException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

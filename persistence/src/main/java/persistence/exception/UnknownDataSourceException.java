@@ -12,12 +12,12 @@ public class UnknownDataSourceException extends RuntimeException {
         super(message);
     }
 
-    public UnknownDataSourceException(Throwable error) {
-        super(error);
+    public UnknownDataSourceException(Throwable cause) {
+        super(cause);
     }
 
-    public UnknownDataSourceException(String message, Throwable error) {
-        super(message, error);
+    public UnknownDataSourceException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

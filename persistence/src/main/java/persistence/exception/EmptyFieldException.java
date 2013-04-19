@@ -12,12 +12,12 @@ public class EmptyFieldException extends ValidationException {
         super(message);
     }
 
-    public EmptyFieldException(Throwable error) {
-        super(error);
+    public EmptyFieldException(Throwable cause) {
+        super(cause);
     }
 
-    public EmptyFieldException(String message, Throwable error) {
-        super(message, error);
+    public EmptyFieldException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

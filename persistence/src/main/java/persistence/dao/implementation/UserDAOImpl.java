@@ -20,10 +20,11 @@ public class UserDAOImpl implements UserDAO {
     private static final String LOGIN = "login";
     private static final String PASSWORD = "password";
 
-    // SQL
+    // LIMITS
     private static final int LOGIN_LIMIT = 32;
     private static final int PASSWORD_LIMIT = 32;
 
+    // SQL
     private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT," +
             LOGIN + " VARCHAR(" + LOGIN_LIMIT + ") NOT NULL UNIQUE," + PASSWORD + " VARCHAR(" + PASSWORD_LIMIT + ") NOT NULL)";
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "(" +
@@ -32,9 +33,10 @@ public class UserDAOImpl implements UserDAO {
     private static final String DELETE = "DELETE FROM " + TABLE_NAME + " WHERE " + ID + "=?";
     private static final String FETCH = "SELECT * FROM " + TABLE_NAME;
     private static final String BY_PRIMARY = "SELECT * FROM " + TABLE_NAME + " WHERE " + ID + "=?";
+    private static final String BY_LOGIN = "SELECT * FROM " + TABLE_NAME + " WHERE " + LOGIN + "=?";
 
     @Override
-    public void create() throws PersistenceException {
+    public void initScheme() throws PersistenceException {
         Connection c = getConnection();
         Statement stat = null;
 
@@ -69,11 +71,12 @@ public class UserDAOImpl implements UserDAO {
 
         Connection c = getConnection();
         PreparedStatement stat = null;
+        ResultSet primaryKeySet = null;
 
         try {
             boolean isInserted;
             try {
-                stat = c.prepareStatement(INSERT);
+                stat = c.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
 
                 stat.setString(1, login);
                 stat.setString(2, password);
@@ -89,16 +92,26 @@ public class UserDAOImpl implements UserDAO {
                 throw new LoginAlreadyExistsException("Login " + login + " is busy.", e);
             }
 
-            /*
-             User insert new login and password. Only login field contains constraints(Login is unique).
-             This error occurs because user want register with login which already exists
-             and JDBC driver don't throw JdbcSQLException or SQLException.
-             */
             if (!isInserted) {
-                throw new LoginAlreadyExistsException("Login " + login + " is busy.");
+                throw new PersistenceException("Creating user failed, no rows affected after insert. SQL " + INSERT);
+            }
+
+            try {
+                primaryKeySet = stat.getGeneratedKeys();
+                if (primaryKeySet.next()) {
+                    user.setId(primaryKeySet.getInt(1));
+                } else {
+                    throw new PersistenceException("Creating user failed, no generated key obtained.");
+                }
+            } catch (SQLException e) {
+                /*
+                 Can't set primary key for user because JDBC driver throw SQLException.
+                 */
+                throw new PersistenceException("Creating user failed, no generated key obtained.", e);
             }
 
         } finally {
+            DatabaseUtils.closeQuietly(primaryKeySet);
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
         }
@@ -232,11 +245,48 @@ public class UserDAOImpl implements UserDAO {
 
             rs = stat.executeQuery();
 
+            User result = null;
+
             if (rs.next()) {
-                return readUserFromResultSet(rs);
+                result = readUserFromResultSet(rs);
             }
 
-            return null;
+            return result;
+
+        } catch (SQLException e) {
+            /*
+            Unknown exception. Must not be occurs.
+             */
+            throw new PersistenceException(e);
+
+        } finally {
+            DatabaseUtils.closeQuietly(rs);
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+    @Override
+    public User fetchByLogin(String login) throws ValidationException {
+        validateLogin(login);
+
+        Connection c = getConnection();
+        PreparedStatement stat = null;
+        ResultSet rs = null;
+
+        try {
+            stat = c.prepareStatement(BY_LOGIN);
+            stat.setString(1, login);
+
+            rs = stat.executeQuery();
+
+            User result = null;
+
+            if (rs.next()) {
+                result = readUserFromResultSet(rs);
+            }
+
+            return result;
 
         } catch (SQLException e) {
             /*

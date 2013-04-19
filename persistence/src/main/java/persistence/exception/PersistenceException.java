@@ -12,12 +12,12 @@ public class PersistenceException extends RuntimeException {
         super(message);
     }
 
-    public PersistenceException(Throwable error) {
-        super(error);
+    public PersistenceException(Throwable cause) {
+        super(cause);
     }
 
-    public PersistenceException(String message, Throwable error) {
-        super(message, error);
+    public PersistenceException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

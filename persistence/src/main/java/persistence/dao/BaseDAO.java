@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface BaseDAO<T, K> {
 
-    void create() throws PersistenceException;
+    void initScheme() throws PersistenceException;
 
     void insert(T o) throws ValidationException;
 

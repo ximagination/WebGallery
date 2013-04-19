@@ -12,11 +12,11 @@ public class DriverClassNotFoundException extends PersistenceException {
         super(message);
     }
 
-    public DriverClassNotFoundException(Throwable error) {
-        super(error);
+    public DriverClassNotFoundException(Throwable cause) {
+        super(cause);
     }
 
-    public DriverClassNotFoundException(String message, Throwable error) {
-        super(message, error);
+    public DriverClassNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

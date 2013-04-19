@@ -1,10 +1,15 @@
+import persistence.connectAndSource.Connector;
 import persistence.connectAndSource.DataSource;
 import persistence.dao.UserDAO;
 import persistence.dao.factory.UserDAOFactory;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
+import persistence.utils.DatabaseUtils;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,6 +44,41 @@ public class Test {
         testFetch();
     }
 
+    private static void print(String sql) {
+        Connection c = Connector.getInstance().newConnection();
+        try {
+            ResultSet rs = c.createStatement().executeQuery(sql);
+
+            ResultSetMetaData rsmd = rs.getMetaData();
+
+            System.out.println("");
+
+            int numberOfColumns = rsmd.getColumnCount();
+
+            for (int i = 1; i <= numberOfColumns; i++) {
+                if (i > 1) System.out.print(",  ");
+                String columnName = rsmd.getColumnName(i);
+                System.out.print(columnName);
+            }
+            System.out.println("");
+
+            while (rs.next()) {
+                for (int i = 1; i <= numberOfColumns; i++) {
+                    if (i > 1) System.out.print(",  ");
+                    String columnValue = rs.getString(i);
+                    System.out.print(columnValue);
+                }
+                System.out.println("");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+
     private static void testInsertIncorrect() {
         User user1 = new User();
         user1.setLogin("test1");
@@ -61,7 +101,7 @@ public class Test {
 
     private static void create() {
         UserDAO dao = UserDAOFactory.getDao(DataSource.JDBC);
-        dao.create();
+        dao.initScheme();
     }
 
     private static void testInsert() throws ValidationException {

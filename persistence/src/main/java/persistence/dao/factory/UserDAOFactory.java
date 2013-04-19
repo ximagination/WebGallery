@@ -29,7 +29,7 @@ public class UserDAOFactory {
                 return new UserDAOImpl();
 
             default:
-                throw new UnknownDataSourceException("unknown source with id=" + typeOfSource + ".");
+                throw new UnknownDataSourceException("unknown source with typeOfSource=" + typeOfSource + ".");
         }
     }
 
