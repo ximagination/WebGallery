@@ -1,8 +1,8 @@
 package persistence.dao.factory;
 
 import persistence.connectAndSource.DataSource;
-import persistence.dao.implementation.UserDAOImpl;
-import persistence.dao.interfaces.UserDAO;
+import persistence.dao.implementation.ImageDAOImpl;
+import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.UnknownDataSourceException;
 
 /**
@@ -11,28 +11,29 @@ import persistence.exception.UnknownDataSourceException;
  * Date: 4/18/13
  * Time: 12:26 PM
  */
-public class UserDAOFactory {
+public class ImageDAOFactory {
 
-    private UserDAOFactory() {
+    private ImageDAOFactory() {
         // not visible
     }
 
-    private static final UserDAO USER_DAO = new UserDAOImpl();
+    private static final ImageDAO IMAGE_DAO = new ImageDAOImpl();
 
     /**
      * @param typeOfSource type of database
      * @return DAO of user associated with typeOfSource
-     * @throws UnknownDataSourceException if unknown source
-     * @see DataSource
+     * @throws persistence.exception.UnknownDataSourceException
+     *          if unknown source
+     * @see persistence.connectAndSource.DataSource
      */
-    public static UserDAO getDao(DataSource typeOfSource) {
+    public static ImageDAO getDao(DataSource typeOfSource) {
         switch (typeOfSource) {
             case JDBC:
                 /*
                 Don't create new instance of object.
                 Just return reference to created object.
                  */
-                return USER_DAO;
+                return IMAGE_DAO;
 
             default:
                 throw new UnknownDataSourceException("unknown source with typeOfSource=" + typeOfSource + ".");

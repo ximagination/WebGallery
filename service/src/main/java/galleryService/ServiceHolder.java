@@ -1,5 +1,8 @@
 package galleryService;
 
+import galleryService.services.AutentificationService;
+import galleryService.services.ImageService;
+
 /**
  * Created with IntelliJ IDEA.
  * User: agnidash
@@ -15,4 +18,9 @@ public class ServiceHolder {
     public static AutentificationService getAutentificationService() {
         return AutentificationService.getInstance();
     }
+
+    public static ImageService getImageService() {
+        return ImageService.getInstance();
+    }
+
 }

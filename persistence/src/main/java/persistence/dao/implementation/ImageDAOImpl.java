@@ -1,9 +1,9 @@
 package persistence.dao.implementation;
 
 import persistence.connectAndSource.Connector;
-import persistence.dao.interfaces.UserDAO;
+import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.*;
-import persistence.struct.User;
+import persistence.struct.Image;
 import persistence.utils.DatabaseUtils;
 import persistence.utils.ValidationUtils;
 
@@ -11,32 +11,41 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAOImpl implements UserDAO {
+public class ImageDAOImpl implements ImageDAO {
 
     // TABLE
-    static final String TABLE_NAME = "user";
+    static final String TABLE_NAME = "image";
 
     // FIELDS IN DATABASE
     static final String ID = "id";
-    static final String LOGIN = "login";
-    static final String PASSWORD = "password";
+    static final String USER_ID = "userId";
+    static final String NAME = "name";
+    static final String COMMENT = "comment";
+    static final String TIMESTAMP = "password";
 
     // LIMITS
-    private static final int LOGIN_LIMIT = 32;
-    private static final int PASSWORD_LIMIT = 32;
+    private static final int NAME_LIMIT = 64;
+    private static final int COMMENT_LIMIT = 255;
 
     // SQL
     private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
             + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
-            + LOGIN + " VARCHAR(" + LOGIN_LIMIT + ") NOT NULL UNIQUE,"
-            + PASSWORD + " VARCHAR(" + PASSWORD_LIMIT + ") NOT NULL)";
+            + USER_ID + " INTEGER NOT NULL,"
+            + NAME + " VARCHAR(" + NAME_LIMIT + ") NOT NULL ,"
+            + COMMENT + " VARCHAR("
+            + COMMENT_LIMIT + ") NOT NULL DEFAULT '',"
+            + TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIME(), " +
+            " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
 
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
-            + LOGIN + ","
-            + PASSWORD + ") VALUES (?,?)";
+            + USER_ID + ","
+            + NAME + ","
+            + COMMENT + ") VALUES (?,?,?)";
 
     private static final String UPDATE = "UPDATE " + TABLE_NAME + " SET "
-            + PASSWORD + "=? "
+            + NAME + "=?, "
+            + COMMENT + "=?,"
+            + TIMESTAMP + "=CURRENT_TIME() "
             + " WHERE " + ID + "=?";
 
     private static final String DELETE = "DELETE FROM " + TABLE_NAME
@@ -46,9 +55,6 @@ public class UserDAOImpl implements UserDAO {
 
     private static final String BY_PRIMARY = "SELECT * FROM " + TABLE_NAME
             + " WHERE " + ID + "=?";
-
-    private static final String BY_LOGIN = "SELECT * FROM " + TABLE_NAME
-            + " WHERE " + LOGIN + "=?";
 
     @Override
     public void initScheme() throws PersistenceException {
@@ -65,9 +71,12 @@ public class UserDAOImpl implements UserDAO {
                 stat.execute(CREATE_TABLE);
             } catch (SQLException e) {
                 /*
-                User invoke method create() multiple times. Table already exists.
+                User invoke method create() multiple times or table user is not created.
                  */
-                throw new TableAlreadyExistsException(e);
+                throw new TableAlreadyExistsException("Table " + TABLE_NAME + " already exists " +
+                        "or " +
+                        "table " + UserDAOImpl.TABLE_NAME + " on which this table references to is not created. " +
+                        "See stack trace for more details", e);
             }
         } finally {
             DatabaseUtils.closeQuietly(stat);
@@ -76,13 +85,15 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void insert(User user) throws ValidationException {
+    public void insert(Image image) throws ValidationException {
 
-        String login = user.getLogin();
-        String password = user.getPassword();
+        int userId = image.getUserId();
+        String name = image.getName();
+        String comment = image.getComment();
 
-        validateLogin(login);
-        validatePassword(password);
+        validatePrimary(userId);
+        validateName(name);
+        validateComment(comment);
 
         Connection c = getConnection();
         PreparedStatement stat = null;
@@ -93,36 +104,37 @@ public class UserDAOImpl implements UserDAO {
             try {
                 stat = c.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
 
-                stat.setString(1, login);
-                stat.setString(2, password);
+                stat.setInt(1, userId);
+                stat.setString(2, name);
+                stat.setString(3, comment);
 
                 isInserted = stat.executeUpdate() > 0;
             } catch (SQLException e) {
                 /*
                 This exception occurs because in database was constraint
-                when insert user (login,password).
-                Login is unique and user try to get already exists login.
-                We throw validate exception.
+                when insert image (userId, name, comment).
+                All validations by fields name and comment were produced ,
+                but userId not found when we insert new record.
                  */
-                throw new LoginAlreadyExistsException("Login " + login + " is busy.", e);
+                throw new ForeignKeyConstraintException("Table " + UserDAOImpl.TABLE_NAME + " don't contains user with id=" + userId, e);
             }
 
             if (!isInserted) {
-                throw new PersistenceException("Creating user failed, no rows affected after insert. SQL " + INSERT);
+                throw new PersistenceException("Creating image failed, no rows affected after insert. SQL " + INSERT);
             }
 
             try {
                 primaryKeySet = stat.getGeneratedKeys();
                 if (primaryKeySet.next()) {
-                    user.setId(primaryKeySet.getInt(1));
+                    image.setId(primaryKeySet.getInt(1));
                 } else {
-                    throw new PersistenceException("Creating user failed, no generated key obtained.");
+                    throw new PersistenceException("Creating image failed, no generated key obtained.");
                 }
             } catch (SQLException e) {
                 /*
                  Can't set primary key for user because JDBC driver throw SQLException.
                  */
-                throw new PersistenceException("Creating user failed, no generated key obtained.", e);
+                throw new PersistenceException("Creating image failed, no generated key obtained.", e);
             }
 
         } finally {
@@ -132,15 +144,17 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
+
     @Override
-    public void update(User user) throws ValidationException {
-        int id = user.getId();
-        String login = user.getLogin();
-        String password = user.getPassword();
+    public void update(Image image) throws ValidationException {
+        int id = image.getId();
+
+        String name = image.getName();
+        String comment = image.getComment();
 
         validatePrimary(id);
-        validateLogin(login);
-        validatePassword(password);
+        validateName(name);
+        validateComment(comment);
 
         Connection c = getConnection();
         PreparedStatement stat = null;
@@ -150,23 +164,26 @@ public class UserDAOImpl implements UserDAO {
             try {
                 stat = c.prepareStatement(UPDATE);
 
-                stat.setString(1, password);
-                stat.setInt(2, id);
+                stat.setString(1, name);
+                stat.setString(2, comment);
 
                 isUpdated = stat.executeUpdate() > 0;
             } catch (SQLException e) {
                 /*
+                In update method user can change image name and comment.
+                Constraint can't occurs because we already gone validate methods.
                 Unknown exception. Must not be occurs.
                 */
                 throw new PersistenceException(e);
             }
 
-             /*
-             In update method user can't change login and constraint can't occurs by login field(Login is unique).
-             This error occurs because user not found by id
-             */
+            /*
+            In update method user can change image name and comment.
+            Constraint can't occurs because we already gone validate methods.
+            This error occurs because user not found by id.
+            */
             if (!isUpdated) {
-                throw new RecordNotFoundException("Record by id=" + id + " not found and user can't be updated");
+                throw new RecordNotFoundException("Record by id=" + id + " not found and image can't be updated");
             }
 
         } finally {
@@ -192,17 +209,14 @@ public class UserDAOImpl implements UserDAO {
                 isDeleted = stat.executeUpdate() > 0;
             } catch (SQLException e) {
                 /*
-                 This exception occurs because this user have some images.
-                 Firstly remove this items and then user record.
-                 */
-                throw new ForeignKeyConstraintException("Table " + ImageDAOImpl.TABLE_NAME +
-                        " contains some images. Firstly remove this items and then user record by id=" + id, e);
+                Unknown exception. Must not be occurs.
+                */
+                throw new PersistenceException(e);
             }
 
             if (!isDeleted) {
-                throw new RecordNotFoundException("Record by id=" + id + " not found and user can't be deleted");
+                throw new RecordNotFoundException("Record by id=" + id + " not found and image can't be deleted");
             }
-
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -210,7 +224,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public List<User> fetch() {
+    public List<Image> fetch() {
         Connection c = getConnection();
         Statement stat = null;
         ResultSet rs = null;
@@ -219,9 +233,9 @@ public class UserDAOImpl implements UserDAO {
             stat = c.createStatement();
             rs = stat.executeQuery(FETCH);
 
-            List<User> result = new ArrayList<User>();
+            List<Image> result = new ArrayList<Image>();
             while (rs.next()) {
-                result.add(readUserFromResultSet(rs));
+                result.add(readImageFromResultSet(rs));
             }
             return result;
 
@@ -238,18 +252,8 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
-    private static User readUserFromResultSet(ResultSet rs) throws SQLException {
-        User user = new User();
-
-        user.setId(rs.getInt(1));
-        user.setLogin(rs.getString(2));
-        user.setPassword(rs.getString(3));
-
-        return user;
-    }
-
     @Override
-    public User fetchByPrimary(Integer id) throws IncorrectPrimaryKeyException {
+    public Image fetchByPrimary(Integer id) throws ValidationException {
         validatePrimary(id);
 
         Connection c = getConnection();
@@ -262,10 +266,10 @@ public class UserDAOImpl implements UserDAO {
 
             rs = stat.executeQuery();
 
-            User result = null;
+            Image result = null;
 
             if (rs.next()) {
-                result = readUserFromResultSet(rs);
+                result = readImageFromResultSet(rs);
             }
 
             return result;
@@ -283,39 +287,16 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
-    @Override
-    public User fetchByLogin(String login) throws ValidationException {
-        validateLogin(login);
+    private static Image readImageFromResultSet(ResultSet rs) throws SQLException {
+        Image user = new Image();
 
-        Connection c = getConnection();
-        PreparedStatement stat = null;
-        ResultSet rs = null;
+        user.setId(rs.getInt(1));
+        user.setUserId(rs.getInt(2));
+        user.setName(rs.getString(3));
+        user.setComment(rs.getString(4));
+        user.setTimestamp(rs.getString(5));
 
-        try {
-            stat = c.prepareStatement(BY_LOGIN);
-            stat.setString(1, login);
-
-            rs = stat.executeQuery();
-
-            User result = null;
-
-            if (rs.next()) {
-                result = readUserFromResultSet(rs);
-            }
-
-            return result;
-
-        } catch (SQLException e) {
-            /*
-            Unknown exception. Must not be occurs.
-             */
-            throw new PersistenceException(e);
-
-        } finally {
-            DatabaseUtils.closeQuietly(rs);
-            DatabaseUtils.closeQuietly(stat);
-            DatabaseUtils.closeQuietly(c);
-        }
+        return user;
     }
 
     private Connection getConnection() {
@@ -326,23 +307,19 @@ public class UserDAOImpl implements UserDAO {
         ValidationUtils.checkPrimary(id);
     }
 
-    private void validateLogin(String login) throws ValidationException {
-        if (login == null || login.isEmpty()) {
-            throw new EmptyFieldException("Field login must not be empty.");
+    private void validateName(String name) throws ValidationException {
+        if (name == null || name.isEmpty()) {
+            throw new EmptyFieldException("Field photo name must not be empty.");
         }
 
-        if (login.length() > LOGIN_LIMIT) {
-            throw new ToLongFieldException("Field login is too long. Max size of filed is " + LOGIN_LIMIT, LOGIN_LIMIT);
+        if (name.length() > NAME_LIMIT) {
+            throw new ToLongFieldException("Field photo name is too long. Max size of filed is " + NAME_LIMIT, NAME_LIMIT);
         }
     }
 
-    private void validatePassword(String password) throws ValidationException {
-        if (password == null || password.isEmpty()) {
-            throw new EmptyFieldException("Field password must not be empty.");
-        }
-
-        if (password.length() > PASSWORD_LIMIT) {
-            throw new ToLongFieldException("Field password is too long. Max size of filed is " + PASSWORD_LIMIT, PASSWORD_LIMIT);
+    private void validateComment(String comment) throws ValidationException {
+        if (comment != null && comment.length() > NAME_LIMIT) {
+            throw new ToLongFieldException("Field photo comment is too long. Max size of filed is " + COMMENT_LIMIT, COMMENT_LIMIT);
         }
     }
 }
