@@ -1,10 +1,10 @@
-package galleryService;
+package galleryService.services;
 
 import galleryService.exception.IncorrectPasswordException;
 import galleryService.exception.LoginNotFoundException;
 import persistence.connectAndSource.DataSource;
-import persistence.dao.UserDAO;
 import persistence.dao.factory.UserDAOFactory;
+import persistence.dao.interfaces.UserDAO;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
 
