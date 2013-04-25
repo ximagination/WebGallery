@@ -1,4 +1,4 @@
-package persistence.dao;
+package persistence.dao.interfaces;
 
 import persistence.exception.PersistenceException;
 import persistence.exception.ValidationException;
