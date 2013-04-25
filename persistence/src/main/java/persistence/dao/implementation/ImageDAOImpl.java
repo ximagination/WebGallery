@@ -21,7 +21,7 @@ public class ImageDAOImpl implements ImageDAO {
     static final String USER_ID = "userId";
     static final String NAME = "name";
     static final String COMMENT = "comment";
-    static final String TIMESTAMP = "password";
+    static final String TIMESTAMP = "timestamp";
 
     // LIMITS
     private static final int NAME_LIMIT = 64;
@@ -233,7 +233,7 @@ public class ImageDAOImpl implements ImageDAO {
             stat = c.createStatement();
             rs = stat.executeQuery(FETCH);
 
-            List<Image> result = new ArrayList<Image>();
+            List<Image> result = new ArrayList<>();
             while (rs.next()) {
                 result.add(readImageFromResultSet(rs));
             }
@@ -288,15 +288,15 @@ public class ImageDAOImpl implements ImageDAO {
     }
 
     private static Image readImageFromResultSet(ResultSet rs) throws SQLException {
-        Image user = new Image();
+        Image image = new Image();
 
-        user.setId(rs.getInt(1));
-        user.setUserId(rs.getInt(2));
-        user.setName(rs.getString(3));
-        user.setComment(rs.getString(4));
-        user.setTimestamp(rs.getString(5));
+        image.setId(rs.getInt(1));
+        image.setUserId(rs.getInt(2));
+        image.setName(rs.getString(3));
+        image.setComment(rs.getString(4));
+        image.setTimestamp(rs.getTimestamp(5));
 
-        return user;
+        return image;
     }
 
     private Connection getConnection() {

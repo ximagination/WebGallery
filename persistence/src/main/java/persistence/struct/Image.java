@@ -1,6 +1,7 @@
 package persistence.struct;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +15,7 @@ public class Image implements Serializable {
 
     private int id;
     private int userId;
-    private String timestamp;
+    private Date timestamp;
     private String name;
     private String comment;
 
@@ -34,11 +35,11 @@ public class Image implements Serializable {
         this.userId = userId;
     }
 
-    public String getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 

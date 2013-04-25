@@ -6,7 +6,7 @@ package persistence.exception;
  * Date: 4/24/13
  * Time: 3:12 PM
  */
-public class ForeignKeyConstraintException extends ValidationException {
+public class ForeignKeyConstraintException extends PersistenceException {
 
     public ForeignKeyConstraintException(String message) {
         super(message);

@@ -9,7 +9,7 @@ import java.io.IOException;
  * Date: 4/24/13
  * Time: 4:51 PM
  */
-public interface FileManagerDAO {
+public interface FileManager {
 
     public File getFile(int id);
 

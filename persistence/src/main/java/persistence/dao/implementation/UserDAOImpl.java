@@ -192,11 +192,10 @@ public class UserDAOImpl implements UserDAO {
                 isDeleted = stat.executeUpdate() > 0;
             } catch (SQLException e) {
                 /*
-                 This exception occurs because this user have some images.
+                 This exception occurs because this user have some images or other records.
                  Firstly remove this items and then user record.
                  */
-                throw new ForeignKeyConstraintException("Table " + ImageDAOImpl.TABLE_NAME +
-                        " contains some images. Firstly remove this items and then user record by id=" + id, e);
+                throw new ForeignKeyConstraintException("User can't be remove by id=" + id, e);
             }
 
             if (!isDeleted) {
@@ -219,7 +218,7 @@ public class UserDAOImpl implements UserDAO {
             stat = c.createStatement();
             rs = stat.executeQuery(FETCH);
 
-            List<User> result = new ArrayList<User>();
+            List<User> result = new ArrayList<>();
             while (rs.next()) {
                 result.add(readUserFromResultSet(rs));
             }
