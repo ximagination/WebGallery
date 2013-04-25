@@ -1,7 +1,7 @@
 package servlets;
 
-import galleryService.AutentificationService;
 import galleryService.ServiceHolder;
+import galleryService.services.AutentificationService;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
 import utils.JSPUtils;
@@ -19,7 +19,7 @@ import java.io.IOException;
  * Date: 4/22/13
  * Time: 12:57 PM
  */
-public class Home extends HttpServlet {
+public class LogIn extends HttpServlet {
 
     //Session params
     public static final String USER = "user";
@@ -48,21 +48,22 @@ public class Home extends HttpServlet {
 
         if (SessionUtils.isAttributePresent(in, USER)) {
             success(out);
-            return;
-        }
-
-        if (isIdentification(in)) {
-            identification(in, out);
-
-        } else if (isRegistration(in)) {
-            registrate(in, out);
 
         } else {
-            JSPUtils.showHomePage(out);
+
+            if (isAutentification(in)) {
+                restoreUserInSession(in, out, AUTENTIFICATION);
+
+            } else if (isRegistration(in)) {
+                restoreUserInSession(in, out, REGISTRATION);
+
+            } else {
+                JSPUtils.showHomePage(out);
+            }
         }
     }
 
-    private void registrate(HttpServletRequest in, HttpServletResponse out) throws IOException {
+    private void restoreUserInSession(HttpServletRequest in, HttpServletResponse out, String type) throws IOException {
 
         String login = getLogin(in);
         String password = getPassword(in);
@@ -71,30 +72,21 @@ public class Home extends HttpServlet {
 
             AutentificationService service = ServiceHolder.getAutentificationService();
 
-            User user = service.register(login, password);
+            if (AUTENTIFICATION.equals(type)) {
+                User user = service.autentificate(login, password);
+                addToSessionAndRedirect(in, out, user);
 
-            addToSessionAndRedirect(in, out, user);
+            } else if (REGISTRATION.equals(type)) {
+                User user = service.register(login, password);
+                addToSessionAndRedirect(in, out, user);
 
-        } catch (ValidationException e) {
-            errorOutput(in, out, e);
-
-        } catch (RuntimeException e) {
-            errorOutput(in, out, e);
-        }
-    }
-
-    private void identification(HttpServletRequest in, HttpServletResponse out) throws IOException {
-
-        String login = getLogin(in);
-        String password = getPassword(in);
-
-        try {
-
-            AutentificationService service = ServiceHolder.getAutentificationService();
-
-            User user = service.autentificate(login, password);
-
-            addToSessionAndRedirect(in, out, user);
+            } else {
+                /*
+                 if user get access to this class like this  ../LogIn
+                 redirect him to login page without error message
+                 */
+                logInPage(out);
+            }
 
         } catch (ValidationException e) {
             errorOutput(in, out, e);
@@ -113,18 +105,18 @@ public class Home extends HttpServlet {
     private void errorOutput(HttpServletRequest in, HttpServletResponse out, Throwable e) throws IOException {
         SessionUtils.addAttribute(in, WARNING, e.getMessage());
 
-        homePage(out);
+        logInPage(out);
     }
 
-    private void homePage(HttpServletResponse out) throws IOException {
-        out.sendRedirect("/Home.jsp");
+    private void logInPage(HttpServletResponse out) throws IOException {
+        out.sendRedirect("/LogIn.jsp");
     }
 
     private void success(HttpServletResponse out) throws IOException {
         JSPUtils.showHomePage(out);
     }
 
-    private boolean isIdentification(HttpServletRequest in) {
+    private boolean isAutentification(HttpServletRequest in) {
         return in.getParameterMap().containsKey(AUTENTIFICATION);
     }
 

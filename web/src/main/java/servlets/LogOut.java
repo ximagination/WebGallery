@@ -26,7 +26,7 @@ public class LogOut extends HttpServlet {
     }
 
     private void action(HttpServletRequest in, HttpServletResponse out) throws IOException {
-        SessionUtils.removeAttribute(in, Home.USER);
+        SessionUtils.removeAttribute(in, LogIn.USER);
         JSPUtils.showHomePage(out);
     }
 }

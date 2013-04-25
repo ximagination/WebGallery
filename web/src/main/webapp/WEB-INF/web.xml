@@ -10,12 +10,12 @@
     </welcome-file-list>
 
     <servlet>
-        <servlet-name>Home</servlet-name>
-        <servlet-class>servlets.Home</servlet-class>
+        <servlet-name>LogIn</servlet-name>
+        <servlet-class>servlets.LogIn</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>Home</servlet-name>
-        <url-pattern>/Home</url-pattern>
+        <servlet-name>LogIn</servlet-name>
+        <url-pattern>/LogIn</url-pattern>
     </servlet-mapping>
 
     <servlet>

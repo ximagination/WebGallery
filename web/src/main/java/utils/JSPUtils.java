@@ -11,7 +11,7 @@ import java.io.IOException;
  */
 public class JSPUtils {
 
-    private static final String DEFAULT_PAGE = "/Home.jsp";
+    private static final String DEFAULT_PAGE = "/LogIn.jsp";
 
     private JSPUtils() {
         // not visible

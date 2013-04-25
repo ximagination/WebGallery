@@ -1,9 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="static servlets.Home.AUTENTIFICATION" %>
-<%@ page import="static servlets.Home.PASSWORD" %>
-<%@ page import="static servlets.Home.LOGIN" %>
-<%@ page import="static servlets.Home.*" %>
-<%@ page import="servlets.Home" %>
+<%@ page import="static servlets.LogIn.AUTENTIFICATION" %>
+<%@ page import="static servlets.LogIn.PASSWORD" %>
+<%@ page import="static servlets.LogIn.LOGIN" %>
+<%@ page import="static servlets.LogIn.*" %>
+<%@ page import="servlets.LogIn" %>
 <%@ page import="servlets.LogOut" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -36,7 +36,7 @@
 
             <div class="nav-collapse collapse">
 
-                <form class="navbar-form pull-right" action="<%=Home.class.getSimpleName()%>" method="post"
+                <form class="navbar-form pull-right" action="<%=LogIn.class.getSimpleName()%>" method="post"
                       accept-charset="UTF-8">
 
                     <input name="<%=LOGIN%>"

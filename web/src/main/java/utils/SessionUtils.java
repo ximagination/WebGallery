@@ -19,6 +19,16 @@ public class SessionUtils {
         in.getSession().setAttribute(key, attribute);
     }
 
+    public static Object getAttribute(HttpServletRequest in, String key) {
+        HttpSession session = in.getSession(false);
+
+        if (session == null) {
+            return null;
+        }
+
+        return session.getAttribute(key);
+    }
+
     public static boolean isAttributePresent(HttpServletRequest in, String attribute) {
         HttpSession session = in.getSession(false);
 
