@@ -6,12 +6,21 @@
     <display-name>GalleryProject</display-name>
 
     <welcome-file-list>
-        <welcome-file>Identification.jsp</welcome-file>
+        <welcome-file>LogIn.jsp</welcome-file>
     </welcome-file-list>
+
+    <error-page>
+        <error-code>401</error-code>
+        <location>/LogIn.jsp</location>
+    </error-page>
+
+    <!--^^^^^^^^-->
+    <!--Servlets-->
+    <!--........-->
 
     <servlet>
         <servlet-name>LogIn</servlet-name>
-        <servlet-class>servlets.LogIn</servlet-class>
+        <servlet-class>visible.LogIn</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LogIn</servlet-name>
@@ -20,11 +29,41 @@
 
     <servlet>
         <servlet-name>LogOut</servlet-name>
-        <servlet-class>servlets.LogOut</servlet-class>
+        <servlet-class>visible.LogOut</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LogOut</servlet-name>
         <url-pattern>/LogOut</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ImageUpload</servlet-name>
+        <servlet-class>invisible.ImageUpload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ImageUpload</servlet-name>
+        <url-pattern>/ImageUpload</url-pattern>
+    </servlet-mapping>
+
+    <!--^^^^^^^-->
+    <!--Filters-->
+    <!--.......-->
+
+    <filter>
+        <filter-name>Filter</filter-name>
+        <filter-class>filter.Filter</filter-class>
+        <init-param>
+            <param-name>default_page</param-name>
+            <param-value>/LogIn.jsp</param-value>
+        </init-param>
+        <init-param>
+            <param-name>public_pages</param-name>
+            <param-value>/LogIn , /LogOut</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 </web-app>

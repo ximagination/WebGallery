@@ -1,10 +1,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="static servlets.LogIn.AUTENTIFICATION" %>
-<%@ page import="static servlets.LogIn.PASSWORD" %>
-<%@ page import="static servlets.LogIn.LOGIN" %>
-<%@ page import="static servlets.LogIn.*" %>
-<%@ page import="servlets.LogIn" %>
-<%@ page import="servlets.LogOut" %>
+
+<%@ page import="static visible.LogIn.AUTENTIFICATION" %>
+<%@ page import="static visible.LogIn.PASSWORD" %>
+<%@ page import="static visible.LogIn.LOGIN" %>
+<%@ page import="static visible.LogIn.*" %>
+<%@ page import="static invisible.ImageUpload.*" %>
+
+<%@ page import="invisible.ImageUpload" %>
+<%@ page import="visible.LogIn" %>
+<%@ page import="visible.LogOut" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -75,6 +79,74 @@
         <span style="width: 200px" class="label label-success">Success authenticated <c:out
                 value="${sessionScope.user.login}"/> </span>
         <button type="submit" class="btn">Log out</button>
+    </form>
+</c:if>
+
+
+<c:if test="${sessionScope.upload_message != null}">
+    <span
+            class="label label-warning">
+            <c:out
+                    value="${sessionScope.upload_message}">
+            </c:out>
+    </span>
+</c:if>
+
+<c:if test="${sessionScope.user != null}">
+    <form
+            class="form-horizontal"
+            action="<%=ImageUpload.class.getSimpleName()%>"
+            method="post"
+            enctype="multipart/form-data"
+            accept-charset="UTF-8">
+
+        <div class="control-group">
+            <label class="control-label" for="<%=NAME%>">Name</label>
+
+            <div class="controls">
+                <input
+                        name="<%=NAME%>"
+                        type="text"
+                        id="<%=NAME%>"
+                        placeholder="Name">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="<%=COMMENT%>">Comment</label>
+
+            <div class="controls">
+                <input
+                        name="<%=COMMENT%>"
+                        type="text"
+                        id="<%=COMMENT%>"
+                        placeholder="Comment">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="<%=PATH%>">Path to file</label>
+
+            <div class="controls">
+                <input
+                        name="<%=PATH%>"
+                        type="file"
+                        accept="image/png, image/jpeg"
+                        id="<%=PATH%>"
+                        placeholder="Path to file">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <button
+                        class="btn"
+                        type="submit"
+                        name="<%=UPLOAD%>">Send
+                </button>
+            </div>
+        </div>
+
     </form>
 </c:if>
 

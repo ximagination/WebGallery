@@ -24,22 +24,26 @@ public class Test {
         new File(System.getProperty("user.home") + DATABASE_NAME).delete();
 
         create();
+//
+//        testInsert();
+//
+//        testInsertIncorrect();
+//
+//        testUpdate();
+//
+//        testFetchByPrimary();
+//
+//        //see all
+//        testFetch();
+//
+//        testDelete();
+//
+//        //again see all
+//        testFetch();
 
-        testInsert();
-
-        testInsertIncorrect();
-
-        testUpdate();
-
-        testFetchByPrimary();
-
-        //see all
-        testFetch();
-
-        testDelete();
-
-        //again see all
-        testFetch();
+//        for (Image each : ImageDAOFactory.getDao(DataSource.JDBC).fetch()) {
+//            System.out.println(each);
+//        }
     }
 
 

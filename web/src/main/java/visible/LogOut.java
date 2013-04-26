@@ -1,4 +1,4 @@
-package servlets;
+package visible;
 
 import utils.JSPUtils;
 import utils.SessionUtils;
@@ -26,7 +26,7 @@ public class LogOut extends HttpServlet {
     }
 
     private void action(HttpServletRequest in, HttpServletResponse out) throws IOException {
-        SessionUtils.removeAttribute(in, LogIn.USER);
+        SessionUtils.clearAllAttributes(in);
         JSPUtils.showHomePage(out);
     }
 }

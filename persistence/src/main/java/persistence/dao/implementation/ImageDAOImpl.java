@@ -32,9 +32,8 @@ public class ImageDAOImpl implements ImageDAO {
             + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
             + USER_ID + " INTEGER NOT NULL,"
             + NAME + " VARCHAR(" + NAME_LIMIT + ") NOT NULL ,"
-            + COMMENT + " VARCHAR("
-            + COMMENT_LIMIT + ") NOT NULL DEFAULT '',"
-            + TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIME(), " +
+            + COMMENT + " VARCHAR(" + COMMENT_LIMIT + ") NOT NULL DEFAULT '',"
+            + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
             " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
 
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
