@@ -1,11 +1,11 @@
-package servlets;
+package web.servlets;
 
 import galleryService.ServiceHolder;
 import galleryService.services.AutentificationService;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
-import utils.JSPUtils;
-import utils.SessionUtils;
+import web.utils.JSPUtils;
+import web.utils.SessionUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,10 +43,11 @@ public class LogIn extends HttpServlet {
 
     private void identificationOrRegistration(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
 
-        // always remove old warning
+        // always remove old warnings and notifications
         SessionUtils.removeAttribute(in, WARNING);
+        SessionUtils.removeAttribute(in, ImageUpload.UPLOAD_MESSAGE);
 
-        if (SessionUtils.isAttributePresent(in, USER)) {
+        if (isUserAuthenticated(in)) {
             success(out);
 
         } else {
@@ -130,5 +131,9 @@ public class LogIn extends HttpServlet {
 
     private String getPassword(HttpServletRequest in) {
         return in.getParameter(PASSWORD);
+    }
+
+    public static boolean isUserAuthenticated(HttpServletRequest in) {
+        return SessionUtils.isAttributePresent(in, LogIn.USER);
     }
 }

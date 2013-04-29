@@ -1,7 +1,7 @@
-package servlets;
+package web.servlets;
 
-import utils.JSPUtils;
-import utils.SessionUtils;
+import web.utils.JSPUtils;
+import web.utils.SessionUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +26,7 @@ public class LogOut extends HttpServlet {
     }
 
     private void action(HttpServletRequest in, HttpServletResponse out) throws IOException {
-        SessionUtils.removeAttribute(in, LogIn.USER);
+        SessionUtils.clearAllAttributes(in);
         JSPUtils.showHomePage(out);
     }
 }

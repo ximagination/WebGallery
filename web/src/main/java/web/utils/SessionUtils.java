@@ -1,7 +1,8 @@
-package utils;
+package web.utils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Enumeration;
 
 /**
  * Created with IntelliJ IDEA.
@@ -47,5 +48,19 @@ public class SessionUtils {
         }
 
         session.removeAttribute(attribute);
+    }
+
+    public static void clearAllAttributes(HttpServletRequest in) {
+        HttpSession session = in.getSession(false);
+
+        if (session == null) {
+            return;
+        }
+
+        Enumeration<String> names = session.getAttributeNames();
+
+        while (names.hasMoreElements()) {
+            session.removeAttribute(names.nextElement());
+        }
     }
 }
