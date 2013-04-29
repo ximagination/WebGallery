@@ -1,6 +1,4 @@
-package filter;
-
-import visible.LogIn;
+package web.servlets;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +11,7 @@ import java.io.IOException;
  * Date: 4/26/13
  * Time: 1:40 PM
  */
-public class Filter implements javax.servlet.Filter {
+public class AuthenticationFilter implements Filter {
 
     private static final String CSS = ".css";
 

@@ -1,7 +1,7 @@
-package visible;
+package web.servlets;
 
-import utils.JSPUtils;
-import utils.SessionUtils;
+import web.utils.JSPUtils;
+import web.utils.SessionUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

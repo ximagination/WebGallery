@@ -1,12 +1,11 @@
-package visible;
+package web.servlets;
 
 import galleryService.ServiceHolder;
 import galleryService.services.AutentificationService;
-import invisible.ImageUpload;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
-import utils.JSPUtils;
-import utils.SessionUtils;
+import web.utils.JSPUtils;
+import web.utils.SessionUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

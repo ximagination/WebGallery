@@ -1,4 +1,4 @@
-package invisible;
+package web.servlets;
 
 import galleryService.ServiceHolder;
 import galleryService.services.ImageService;
@@ -6,9 +6,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
-import utils.JSPUtils;
-import utils.SessionUtils;
-import visible.LogIn;
+import web.utils.JSPUtils;
+import web.utils.SessionUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
