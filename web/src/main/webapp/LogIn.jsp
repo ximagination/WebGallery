@@ -1,14 +1,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ page import="static visible.LogIn.AUTENTIFICATION" %>
-<%@ page import="static visible.LogIn.PASSWORD" %>
-<%@ page import="static visible.LogIn.LOGIN" %>
-<%@ page import="static visible.LogIn.*" %>
-<%@ page import="static invisible.ImageUpload.*" %>
+<%@ page import="static web.servlets.servlets.LogIn.AUTENTIFICATION" %>
+<%@ page import="static web.servlets.servlets.LogIn.PASSWORD" %>
+<%@ page import="static web.servlets.servlets.LogIn.LOGIN" %>
+<%@ page import="static web.servlets.servlets.LogIn.*" %>
+<%@ page import="static web.servlets.servlets.ImageUpload.*" %>
 
-<%@ page import="invisible.ImageUpload" %>
-<%@ page import="visible.LogIn" %>
-<%@ page import="visible.LogOut" %>
+<%@ page import="web.servlets.servlets.ImageUpload" %>
+<%@ page import="web.servlets.servlets.LogIn" %>
+<%@ page import="web.servlets.servlets.LogOut" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>

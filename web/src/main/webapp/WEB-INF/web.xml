@@ -20,7 +20,7 @@
 
     <servlet>
         <servlet-name>LogIn</servlet-name>
-        <servlet-class>visible.LogIn</servlet-class>
+        <servlet-class>web.servlets.LogIn</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LogIn</servlet-name>
@@ -29,7 +29,7 @@
 
     <servlet>
         <servlet-name>LogOut</servlet-name>
-        <servlet-class>visible.LogOut</servlet-class>
+        <servlet-class>web.servlets.LogOut</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LogOut</servlet-name>
@@ -38,7 +38,7 @@
 
     <servlet>
         <servlet-name>ImageUpload</servlet-name>
-        <servlet-class>invisible.ImageUpload</servlet-class>
+        <servlet-class>web.servlets.ImageUpload</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ImageUpload</servlet-name>
@@ -50,8 +50,8 @@
     <!--.......-->
 
     <filter>
-        <filter-name>Filter</filter-name>
-        <filter-class>filter.Filter</filter-class>
+        <filter-name>AuthenticationFilter</filter-name>
+        <filter-class>web.servlets.AuthenticationFilter</filter-class>
         <init-param>
             <param-name>default_page</param-name>
             <param-value>/LogIn.jsp</param-value>
@@ -62,7 +62,7 @@
         </init-param>
     </filter>
     <filter-mapping>
-        <filter-name>Filter</filter-name>
+        <filter-name>AuthenticationFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
