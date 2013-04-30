@@ -17,14 +17,7 @@
         -->
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!--
-        Internal dependencies
-        -->
-
-        <photo.gallery.persistence.version>0.0.1-SNAPSHOT</photo.gallery.persistence.version>
-        <photo.gallery.service.version>0.0.1-SNAPSHOT</photo.gallery.service.version>
-        <photo.gallery.web.version>0.0.1-SNAPSHOT</photo.gallery.web.version>
+        <project.version>0.0.1-SNAPSHOT</project.version>
 
         <!--
         External dependencies versions
@@ -36,6 +29,7 @@
         <jstl.version>1.2</jstl.version>
         <javax-servlet-api.version>3.1-b08</javax-servlet-api.version>
         <log4j.version>1.2.15</log4j.version>
+        <slf4j-parent.version>1.7.5</slf4j-parent.version>
 
     </properties>
 
@@ -70,19 +64,19 @@
             <dependency>
                 <groupId>com.griddynamics</groupId>
                 <artifactId>photo.gallery.persistence</artifactId>
-                <version>${photo.gallery.persistence.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.griddynamics</groupId>
                 <artifactId>photo.gallery.service</artifactId>
-                <version>${photo.gallery.service.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.griddynamics</groupId>
                 <artifactId>photo.gallery.web</artifactId>
-                <version>${photo.gallery.web.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!--
