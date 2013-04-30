@@ -17,7 +17,6 @@
         -->
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.version>0.0.1-SNAPSHOT</project.version>
 
         <!--
         External dependencies versions
@@ -64,19 +63,19 @@
             <dependency>
                 <groupId>com.griddynamics</groupId>
                 <artifactId>photo.gallery.persistence</artifactId>
-                <version>${project.version}</version>
+                <version>${version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.griddynamics</groupId>
                 <artifactId>photo.gallery.service</artifactId>
-                <version>${project.version}</version>
+                <version>${version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.griddynamics</groupId>
                 <artifactId>photo.gallery.web</artifactId>
-                <version>${project.version}</version>
+                <version>${version}</version>
             </dependency>
 
             <!--
