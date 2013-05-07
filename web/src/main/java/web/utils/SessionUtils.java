@@ -23,44 +23,42 @@ public class SessionUtils {
     public static Object getAttribute(HttpServletRequest in, String key) {
         HttpSession session = in.getSession(false);
 
-        if (session == null) {
-            return null;
+        Object result = null;
+        if (session != null) {
+            result = session.getAttribute(key);
         }
 
-        return session.getAttribute(key);
+        return result;
     }
 
     public static boolean isAttributePresent(HttpServletRequest in, String attribute) {
         HttpSession session = in.getSession(false);
 
-        if (session == null) {
-            return false;
+        boolean attrPresent = false;
+        if (session != null) {
+            attrPresent = session.getAttribute(attribute) != null;
         }
 
-        return session.getAttribute(attribute) != null;
+        return attrPresent;
     }
 
     public static void removeAttribute(HttpServletRequest in, String attribute) {
         HttpSession session = in.getSession(false);
 
-        if (session == null) {
-            return;
+        if (session != null) {
+            session.removeAttribute(attribute);
         }
-
-        session.removeAttribute(attribute);
     }
 
     public static void clearAllAttributes(HttpServletRequest in) {
         HttpSession session = in.getSession(false);
 
-        if (session == null) {
-            return;
-        }
+        if (session != null) {
+            Enumeration<String> names = session.getAttributeNames();
 
-        Enumeration<String> names = session.getAttributeNames();
-
-        while (names.hasMoreElements()) {
-            session.removeAttribute(names.nextElement());
+            while (names.hasMoreElements()) {
+                session.removeAttribute(names.nextElement());
+            }
         }
     }
 }

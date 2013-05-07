@@ -1,6 +1,7 @@
 package persistence.dao.implementation;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Repository;
 import persistence.dao.interfaces.FileManager;
 import persistence.exception.PersistenceException;
 
@@ -12,23 +13,26 @@ import java.io.*;
  * Date: 4/24/13
  * Time: 5:01 PM
  */
+@Repository
 public class FileManagerImpl implements FileManager {
 
-    private static final File PATH = new File(System.getProperty("user.home") + "/images");
+    private final File path;
 
-    static {
-        if (!PATH.exists()) {
-            boolean isDirectoryCreated = PATH.mkdirs();
+    public FileManagerImpl(String address) {
+        this.path = new File(address);
+
+        if (!path.exists()) {
+            boolean isDirectoryCreated = path.mkdirs();
 
             if (!isDirectoryCreated) {
-                throw new PersistenceException("File system can't create directory by path " + PATH);
+                throw new PersistenceException("File system can't create directory by path " + path);
             }
         }
     }
 
     @Override
     public File getFile(int id) {
-        return new File(PATH, Integer.toString(id));
+        return new File(path, Integer.toString(id));
     }
 
     @Override

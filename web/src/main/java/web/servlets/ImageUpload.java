@@ -1,9 +1,13 @@
 package web.servlets;
 
-import galleryService.ServiceHolder;
-import galleryService.services.ImageService;
-import org.apache.commons.io.IOUtils;
+import galleryService.interfaces.ImageService;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
 import web.utils.JSPUtils;
@@ -14,9 +18,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +27,8 @@ import java.io.InputStream;
  * Time: 1:38 PM
  */
 @MultipartConfig
+@Controller
+@RequestMapping("/ImageUpload")
 public class ImageUpload extends HttpServlet {
 
     //Session params
@@ -41,6 +45,14 @@ public class ImageUpload extends HttpServlet {
     //Logger
     private static final Logger LOGGER = Logger.getLogger(ImageUpload.class);
 
+    @Required
+    public void setService(ImageService service) {
+        this.service = service;
+    }
+
+    private ImageService service;
+
+    @RequestMapping(method = RequestMethod.GET)
     protected void doGet(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
         /*
          Ignore.
@@ -48,13 +60,15 @@ public class ImageUpload extends HttpServlet {
         JSPUtils.showHomePage(out);
     }
 
-    protected void doPost(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
+    @RequestMapping(method = RequestMethod.POST)
+    protected void doPost(HttpServletRequest in, HttpServletResponse out,
+                          @RequestParam(value = PATH) MultipartFile file) throws ServletException, IOException {
         /*
         Always remove upload error message
         */
         SessionUtils.removeAttribute(in, UPLOAD_MESSAGE);
 
-        byte[] data = loadFile(in);
+        byte[] data = loadFile(file);
 
         if (data != null) {
             saveImage(in, out, data);
@@ -64,13 +78,23 @@ public class ImageUpload extends HttpServlet {
         }
     }
 
+    private byte[] loadFile(MultipartFile file) {
+        byte[] image = null;
+        try {
+            image = file.getBytes();
+        } catch (IOException e) {
+            LOGGER.warn("Image can't be uploaded. ", e);
+        }
+        return image;
+    }
+
     private void saveImage(HttpServletRequest in, HttpServletResponse out, byte[] data) throws IOException {
         User user = getUser(in);
 
         String name = in.getParameter(NAME);
         String comment = in.getParameter(COMMENT);
 
-        ImageService imageService = ServiceHolder.getImageService();
+        ImageService imageService = getService();
 
         try {
             imageService.addImage(user, name, comment, data);
@@ -83,34 +107,16 @@ public class ImageUpload extends HttpServlet {
             onFail(in, out, e.getMessage());
 
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
+            LOGGER.error("Failed on upload image. ", e);
+
             onFail(in, out, e.getMessage());
         }
     }
 
     private User getUser(HttpServletRequest in) {
         return (User) SessionUtils.getAttribute(in, LogIn.USER);
-    }
-
-    private byte[] loadFile(HttpServletRequest in) throws ServletException {
-        InputStream stream = null;
-        byte[] image = null;
-
-        try {
-            Part filePart = in.getPart(PATH);
-
-            if (filePart != null) {
-                stream = filePart.getInputStream();
-                image = IOUtils.toByteArray(stream);
-            }
-
-        } catch (IOException e) {
-            LOGGER.warn("Image can't be uploaded. ", e);
-
-        } finally {
-            IOUtils.closeQuietly(stream);
-        }
-
-        return image;
     }
 
     private void onSuccess(HttpServletRequest in, HttpServletResponse out) throws IOException {
@@ -128,4 +134,10 @@ public class ImageUpload extends HttpServlet {
     private void addMessage(HttpServletRequest in, String message) {
         SessionUtils.addAttribute(in, UPLOAD_MESSAGE, message);
     }
+
+    public ImageService getService() {
+        return service;
+    }
+
+
 }
