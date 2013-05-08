@@ -1,9 +1,10 @@
-package galleryService.services;
+package galleryService.implementation;
 
 import galleryService.exception.IncorrectPasswordException;
 import galleryService.exception.LoginNotFoundException;
-import persistence.connectAndSource.DataSource;
-import persistence.dao.factory.UserDAOFactory;
+import galleryService.interfaces.AutentificationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import persistence.dao.interfaces.UserDAO;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
@@ -14,16 +15,11 @@ import persistence.struct.User;
  * Date: 4/19/13
  * Time: 4:48 PM
  */
-public class AutentificationService {
-    private static final AutentificationService INSTANCE = new AutentificationService();
+@Service
+public class AutentificationServiceImpl implements AutentificationService {
 
-    private AutentificationService() {
-        // not visible
-    }
-
-    public static AutentificationService getInstance() {
-        return INSTANCE;
-    }
+    @Autowired
+    private UserDAO userDAO;
 
     /**
      * Create new record in database and autentificate user.
@@ -34,7 +30,7 @@ public class AutentificationService {
      * @throws ValidationException
      * @throws RuntimeException
      */
-    public User register(String login, String password) throws ValidationException, RuntimeException {
+    public User register(String login, String password) throws ValidationException {
         User user = new User();
 
         user.setLogin(login);
@@ -53,7 +49,7 @@ public class AutentificationService {
      * @throws ValidationException
      * @throws RuntimeException
      */
-    public User autentificate(String login, String password) throws ValidationException, RuntimeException {
+    public User autentificate(String login, String password) throws ValidationException {
 
         User user = getUserDAO().fetchByLogin(login);
 
@@ -69,6 +65,6 @@ public class AutentificationService {
     }
 
     private UserDAO getUserDAO() {
-        return UserDAOFactory.getDao(DataSource.JDBC);
+        return userDAO;
     }
 }

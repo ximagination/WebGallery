@@ -1,14 +1,17 @@
 package web.servlets;
 
-import galleryService.ServiceHolder;
-import galleryService.services.AutentificationService;
+import galleryService.interfaces.AutentificationService;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
 import web.utils.JSPUtils;
 import web.utils.SessionUtils;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -19,7 +22,9 @@ import java.io.IOException;
  * Date: 4/22/13
  * Time: 12:57 PM
  */
-public class LogIn extends HttpServlet {
+@Controller
+@RequestMapping("/LogIn")
+public class LogIn {
 
     //Session params
     public static final String USER = "user";
@@ -33,10 +38,22 @@ public class LogIn extends HttpServlet {
     public static final String LOGIN = "login";
     public static final String PASSWORD = "password";
 
+    //Logger
+    private static final Logger LOGGER = Logger.getLogger(LogIn.class);
+
+    @Required
+    public void setService(AutentificationService service) {
+        this.service = service;
+    }
+
+    private AutentificationService service;
+
+    @RequestMapping(method = RequestMethod.POST)
     protected void doPost(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
         identificationOrRegistration(in, out);
     }
 
+    @RequestMapping(method = RequestMethod.GET)
     protected void doGet(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
         identificationOrRegistration(in, out);
     }
@@ -71,7 +88,7 @@ public class LogIn extends HttpServlet {
 
         try {
 
-            AutentificationService service = ServiceHolder.getAutentificationService();
+            AutentificationService service = getAutentificationService();
 
             if (AUTENTIFICATION.equals(type)) {
                 User user = service.autentificate(login, password);
@@ -93,6 +110,8 @@ public class LogIn extends HttpServlet {
             errorOutput(in, out, e);
 
         } catch (RuntimeException e) {
+            LOGGER.error("Failed on auth user", e);
+
             errorOutput(in, out, e);
         }
     }
@@ -135,5 +154,9 @@ public class LogIn extends HttpServlet {
 
     public static boolean isUserAuthenticated(HttpServletRequest in) {
         return SessionUtils.isAttributePresent(in, LogIn.USER);
+    }
+
+    public AutentificationService getAutentificationService() {
+        return service;
     }
 }

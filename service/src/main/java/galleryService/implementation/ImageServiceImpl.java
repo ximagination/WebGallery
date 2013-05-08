@@ -1,9 +1,9 @@
-package galleryService.services;
+package galleryService.implementation;
 
 import galleryService.exception.EmptyImageException;
-import persistence.connectAndSource.DataSource;
-import persistence.dao.factory.FileManagerFactory;
-import persistence.dao.factory.ImageDAOFactory;
+import galleryService.interfaces.ImageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import persistence.dao.interfaces.FileManager;
 import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.ValidationException;
@@ -18,18 +18,16 @@ import java.io.IOException;
  * Date: 4/24/13
  * Time: 6:03 PM
  */
-public class ImageService {
-    private static final ImageService INSTANCE = new ImageService();
+@Service
+public class ImageServiceImpl implements ImageService {
 
-    private ImageService() {
-        // not visible
-    }
+    @Autowired
+    private ImageDAO imageDAO;
 
-    public static ImageService getInstance() {
-        return INSTANCE;
-    }
+    @Autowired
+    private FileManager fileManager;
 
-    public void addImage(User user, String name, String comment, byte[] data) throws ValidationException, IOException, RuntimeException {
+    public void addImage(User user, String name, String comment, byte[] data) throws ValidationException, IOException {
 
         if (data == null || data.length == 0) {
             throw new EmptyImageException("param data must not be null");
@@ -54,10 +52,10 @@ public class ImageService {
     }
 
     private FileManager getFileManager() {
-        return FileManagerFactory.getInstance();
+        return fileManager;
     }
 
     private ImageDAO getImageDAO() {
-        return ImageDAOFactory.getDao(DataSource.JDBC);
+        return imageDAO;
     }
 }

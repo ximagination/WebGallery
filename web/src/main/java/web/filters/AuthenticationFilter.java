@@ -1,4 +1,6 @@
-package web.servlets;
+package web.filters;
+
+import web.servlets.LogIn;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

@@ -1,5 +1,7 @@
 package persistence.dao.implementation;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
 import persistence.dao.interfaces.UserDAO;
 import persistence.exception.*;
@@ -11,6 +13,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class UserDAOImpl implements UserDAO {
 
     // TABLE
@@ -49,6 +52,9 @@ public class UserDAOImpl implements UserDAO {
 
     private static final String BY_LOGIN = "SELECT * FROM " + TABLE_NAME
             + " WHERE " + LOGIN + "=?";
+
+    @Autowired
+    private Connector connector = null;
 
     @Override
     public void initScheme() throws PersistenceException {
@@ -318,7 +324,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     private Connection getConnection() {
-        return Connector.getInstance().newConnection();
+        return connector.newConnection();
     }
 
     private void validatePrimary(Integer id) throws IncorrectPrimaryKeyException {
