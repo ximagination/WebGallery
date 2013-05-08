@@ -110,8 +110,6 @@ public class LogIn {
             errorOutput(in, out, e);
 
         } catch (RuntimeException e) {
-            e.printStackTrace();
-
             LOGGER.error("Failed on auth user", e);
 
             errorOutput(in, out, e);

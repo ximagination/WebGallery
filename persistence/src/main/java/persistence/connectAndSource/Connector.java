@@ -1,9 +1,9 @@
 package persistence.connectAndSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import persistence.exception.NoConnectionToDatabaseException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -17,7 +17,7 @@ import java.sql.SQLException;
 public class Connector {
 
     @Autowired
-    private DriverManagerDataSource source;
+    private DataSource source;
 
     /**
      * Instantiate connection
@@ -29,7 +29,7 @@ public class Connector {
         try {
             return source.getConnection();
         } catch (SQLException e) {
-            throw new NoConnectionToDatabaseException("Can't instantiate connection to '" + source.getUrl() + "' database ", e);
+            throw new NoConnectionToDatabaseException(Connector.class + " can't instantiate connection to database.  ", e);
         }
     }
 }

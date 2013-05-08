@@ -107,8 +107,6 @@ public class ImageUpload extends HttpServlet {
             onFail(in, out, e.getMessage());
 
         } catch (RuntimeException e) {
-            e.printStackTrace();
-
             LOGGER.error("Failed on upload image. ", e);
 
             onFail(in, out, e.getMessage());
