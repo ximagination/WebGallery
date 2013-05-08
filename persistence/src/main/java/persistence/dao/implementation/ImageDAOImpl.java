@@ -1,5 +1,7 @@
 package persistence.dao.implementation;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
 import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.*;
@@ -11,6 +13,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class ImageDAOImpl implements ImageDAO {
 
     // TABLE
@@ -54,6 +57,9 @@ public class ImageDAOImpl implements ImageDAO {
 
     private static final String BY_PRIMARY = "SELECT * FROM " + TABLE_NAME
             + " WHERE " + ID + "=?";
+
+    @Autowired
+    private final Connector connector = null;
 
     @Override
     public void initScheme() throws PersistenceException {
@@ -299,7 +305,7 @@ public class ImageDAOImpl implements ImageDAO {
     }
 
     private Connection getConnection() {
-        return Connector.getInstance().newConnection();
+        return connector.newConnection();
     }
 
     private void validatePrimary(Integer id) throws IncorrectPrimaryKeyException {
