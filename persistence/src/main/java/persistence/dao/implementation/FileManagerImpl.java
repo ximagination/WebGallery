@@ -1,6 +1,7 @@
 package persistence.dao.implementation;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import persistence.dao.interfaces.FileManager;
 import persistence.exception.PersistenceException;
@@ -16,11 +17,8 @@ import java.io.*;
 @Repository
 public class FileManagerImpl implements FileManager {
 
+    @Value(value = "${persistence.fileManager.pathToImages}")
     private File path;
-
-    public void setPath(File path) {
-        this.path = path;
-    }
 
     public void init() {
         if (!path.exists()) {

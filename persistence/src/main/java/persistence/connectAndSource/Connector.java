@@ -1,6 +1,7 @@
 package persistence.connectAndSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import persistence.exception.NoConnectionToDatabaseException;
 
 import javax.sql.DataSource;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
  * Time: 5:23 PM
  * To change this template use File | Settings | File Templates.
  */
+@Repository
 public class Connector {
 
     @Autowired

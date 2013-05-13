@@ -1,4 +1,4 @@
-package web.servlets;
+package web.pojo;
 
 import org.hibernate.validator.constraints.NotEmpty;
 

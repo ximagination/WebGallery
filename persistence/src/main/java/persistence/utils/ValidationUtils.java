@@ -27,5 +27,4 @@ public class ValidationUtils {
             throw new IncorrectPrimaryKeyException("Value of primary key is zero");
         }
     }
-
 }

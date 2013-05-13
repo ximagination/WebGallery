@@ -2,7 +2,7 @@ package web.servlets;
 
 import galleryService.interfaces.ImageService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
+import web.pojo.Login;
 import web.utils.SessionUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,7 @@ import static web.utils.JSPUtils.DEFAULT_PAGE;
  */
 @Controller
 @RequestMapping("/ImageUpload")
-public class ImageUpload {
+public class ImageUploadController {
 
     //Session params
     public static final String UPLOAD_MESSAGE = "upload_message";
@@ -39,14 +40,14 @@ public class ImageUpload {
     public static final String PATH = "path";
 
     //Logger
-    private static final Logger LOGGER = Logger.getLogger(ImageUpload.class);
+    private static final Logger LOGGER = Logger.getLogger(ImageUploadController.class);
 
-    public void setService(ImageService service) {
-        this.service = service;
+    private ImageService imageService;
+
+    @Required
+    public void setImageService(ImageService imageService) {
+        this.imageService = imageService;
     }
-
-    @Autowired
-    private ImageService service;
 
     @RequestMapping(method = GET)
     protected String doGet(HttpServletRequest in, HttpServletResponse out) {
@@ -128,6 +129,6 @@ public class ImageUpload {
     }
 
     public ImageService getService() {
-        return service;
+        return imageService;
     }
 }

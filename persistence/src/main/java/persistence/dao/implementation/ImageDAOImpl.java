@@ -59,7 +59,7 @@ public class ImageDAOImpl implements ImageDAO {
             + " WHERE " + ID + "=?";
 
     @Autowired
-    private final Connector connector = null;
+    private Connector connector;
 
     @Override
     public void initScheme() throws PersistenceException {

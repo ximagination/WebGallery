@@ -1,5 +1,7 @@
 package web.utils;
 
+import web.servlets.LoginController;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
@@ -14,6 +16,10 @@ public class SessionUtils {
 
     private SessionUtils() {
         // not visible
+    }
+
+    public static boolean isUserAuthenticated(HttpServletRequest in) {
+        return SessionUtils.isAttributePresent(in, LoginController.USER);
     }
 
     public static void addAttribute(HttpServletRequest in, String key, Object attribute) {

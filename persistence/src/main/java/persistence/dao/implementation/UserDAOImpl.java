@@ -54,7 +54,7 @@ public class UserDAOImpl implements UserDAO {
             + " WHERE " + LOGIN + "=?";
 
     @Autowired
-    private Connector connector = null;
+    private Connector connector;
 
     @Override
     public void initScheme() throws PersistenceException {

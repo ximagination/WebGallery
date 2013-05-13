@@ -2,7 +2,7 @@ package web.servlets;
 
 import galleryService.interfaces.AutentificationService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,6 +10,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
+import web.pojo.Login;
 import web.utils.SessionUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import javax.validation.Valid;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static web.servlets.ImageUpload.UPLOAD_MESSAGE;
+import static web.servlets.ImageUploadController.UPLOAD_MESSAGE;
 import static web.utils.JSPUtils.DEFAULT_PAGE;
 
 /**
@@ -45,12 +46,12 @@ public class LoginController {
     //Logger
     private static final Logger LOGGER = Logger.getLogger(LoginController.class);
 
-    public void setService(AutentificationService service) {
-        this.service = service;
-    }
+    private AutentificationService autentificationService;
 
-    @Autowired
-    private AutentificationService service;
+    @Required
+    public void setAutentificationService(AutentificationService autentificationService) {
+        this.autentificationService = autentificationService;
+    }
 
     @RequestMapping(method = GET)
     public String handleRequest(Model model) {
@@ -66,11 +67,16 @@ public class LoginController {
             Login login, BindingResult binding) {
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.info(login.toString());
-            LOGGER.info("BindingResult has errors? " + binding.hasErrors());
-            LOGGER.info("======== Error list ==========");
-            for (ObjectError each : binding.getAllErrors()) {
-                LOGGER.info(each.toString());
+            LOGGER.debug(login.toString());
+
+            boolean hasErrors = binding.hasErrors();
+
+            LOGGER.debug("BindingResult has errors? " + hasErrors);
+            if (hasErrors) {
+                LOGGER.debug("======== Error list ==========");
+                for (ObjectError each : binding.getAllErrors()) {
+                    LOGGER.debug(each.toString());
+                }
             }
         }
 
@@ -142,11 +148,7 @@ public class LoginController {
         return in.getParameter(PASSWORD);
     }
 
-    public static boolean isUserAuthenticated(HttpServletRequest in) {
-        return SessionUtils.isAttributePresent(in, LoginController.USER);
-    }
-
     public AutentificationService getAutentificationService() {
-        return service;
+        return autentificationService;
     }
 }
