@@ -2,19 +2,23 @@ package web.servlets;
 
 import galleryService.interfaces.AutentificationService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
-import web.utils.JSPUtils;
 import web.utils.SessionUtils;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.validation.Valid;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static web.servlets.ImageUpload.UPLOAD_MESSAGE;
+import static web.utils.JSPUtils.DEFAULT_PAGE;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,8 +27,8 @@ import java.io.IOException;
  * Time: 12:57 PM
  */
 @Controller
-@RequestMapping("/LogIn")
-public class LogIn {
+@RequestMapping("/Login")
+public class LoginController {
 
     //Session params
     public static final String USER = "user";
@@ -39,49 +43,54 @@ public class LogIn {
     public static final String PASSWORD = "password";
 
     //Logger
-    private static final Logger LOGGER = Logger.getLogger(LogIn.class);
+    private static final Logger LOGGER = Logger.getLogger(LoginController.class);
 
-    @Required
     public void setService(AutentificationService service) {
         this.service = service;
     }
 
+    @Autowired
     private AutentificationService service;
 
-    @RequestMapping(method = RequestMethod.POST)
-    protected void doPost(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
-        identificationOrRegistration(in, out);
+    @RequestMapping(method = GET)
+    public String handleRequest(Model model) {
+        model.addAttribute("login", new Login());
+        return DEFAULT_PAGE;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    protected void doGet(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
-        identificationOrRegistration(in, out);
-    }
+    @RequestMapping(method = POST)
+    public String identificationOrRegistration(
+            HttpServletRequest in,
 
-    private void identificationOrRegistration(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
+            @Valid
+            Login login, BindingResult binding) {
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.info(login.toString());
+            LOGGER.info("BindingResult has errors? " + binding.hasErrors());
+            LOGGER.info("======== Error list ==========");
+            for (ObjectError each : binding.getAllErrors()) {
+                LOGGER.info(each.toString());
+            }
+        }
 
         // always remove old warnings and notifications
         SessionUtils.removeAttribute(in, WARNING);
-        SessionUtils.removeAttribute(in, ImageUpload.UPLOAD_MESSAGE);
+        SessionUtils.removeAttribute(in, UPLOAD_MESSAGE);
 
-        if (isUserAuthenticated(in)) {
-            success(out);
-
-        } else {
-
+        if (!binding.hasErrors()) {
             if (isAutentification(in)) {
-                restoreUserInSession(in, out, AUTENTIFICATION);
+                restoreUserInSession(in, AUTENTIFICATION);
 
             } else if (isRegistration(in)) {
-                restoreUserInSession(in, out, REGISTRATION);
-
-            } else {
-                JSPUtils.showHomePage(out);
+                restoreUserInSession(in, REGISTRATION);
             }
         }
+
+        return DEFAULT_PAGE;
     }
 
-    private void restoreUserInSession(HttpServletRequest in, HttpServletResponse out, String type) throws IOException {
+    private void restoreUserInSession(HttpServletRequest in, String type) {
 
         String login = getLogin(in);
         String password = getPassword(in);
@@ -92,48 +101,29 @@ public class LogIn {
 
             if (AUTENTIFICATION.equals(type)) {
                 User user = service.autentificate(login, password);
-                addToSessionAndRedirect(in, out, user);
+                addToSession(in, user);
 
             } else if (REGISTRATION.equals(type)) {
                 User user = service.register(login, password);
-                addToSessionAndRedirect(in, out, user);
-
-            } else {
-                /*
-                 if user get access to this class like this  ../LogIn
-                 redirect him to login page without error message
-                 */
-                logInPage(out);
+                addToSession(in, user);
             }
 
         } catch (ValidationException e) {
-            errorOutput(in, out, e);
+            errorOutput(in, e);
 
         } catch (RuntimeException e) {
             LOGGER.error("Failed on auth user", e);
 
-            errorOutput(in, out, e);
+            errorOutput(in, e);
         }
     }
 
-    private void addToSessionAndRedirect(HttpServletRequest in, HttpServletResponse out, User user) throws IOException {
+    private void addToSession(HttpServletRequest in, User user) {
         SessionUtils.addAttribute(in, USER, user);
-
-        success(out);
     }
 
-    private void errorOutput(HttpServletRequest in, HttpServletResponse out, Throwable e) throws IOException {
+    private void errorOutput(HttpServletRequest in, Throwable e) {
         SessionUtils.addAttribute(in, WARNING, e.getMessage());
-
-        logInPage(out);
-    }
-
-    private void logInPage(HttpServletResponse out) throws IOException {
-        out.sendRedirect("/LogIn.jsp");
-    }
-
-    private void success(HttpServletResponse out) throws IOException {
-        JSPUtils.showHomePage(out);
     }
 
     private boolean isAutentification(HttpServletRequest in) {
@@ -153,7 +143,7 @@ public class LogIn {
     }
 
     public static boolean isUserAuthenticated(HttpServletRequest in) {
-        return SessionUtils.isAttributePresent(in, LogIn.USER);
+        return SessionUtils.isAttributePresent(in, LoginController.USER);
     }
 
     public AutentificationService getAutentificationService() {

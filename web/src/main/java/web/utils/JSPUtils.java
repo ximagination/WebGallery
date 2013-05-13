@@ -1,8 +1,5 @@
 package web.utils;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 /**
  * Created with IntelliJ IDEA.
  * User: agnidash
@@ -11,13 +8,9 @@ import java.io.IOException;
  */
 public class JSPUtils {
 
-    private static final String DEFAULT_PAGE = "/LogIn.jsp";
+    public static final String DEFAULT_PAGE = "index";
 
     private JSPUtils() {
         // not visible
-    }
-
-    public static void showHomePage(HttpServletResponse out) throws IOException {
-        out.sendRedirect(DEFAULT_PAGE);
     }
 }

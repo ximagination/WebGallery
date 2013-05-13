@@ -11,8 +11,8 @@
 
     <bean
             id="fileManager"
-            class="persistence.dao.implementation.FileManagerImpl">
-        <constructor-arg type="java.lang.String" value="#{systemProperties['user.home'] + '/images'}"/>
+            class="persistence.dao.implementation.FileManagerImpl" init-method="init">
+        <property name="path" value="#{systemProperties['user.home'] + '/images'}"/>
     </bean>
 
 </beans>

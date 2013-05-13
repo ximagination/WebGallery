@@ -16,11 +16,13 @@ import java.io.*;
 @Repository
 public class FileManagerImpl implements FileManager {
 
-    private final File path;
+    private File path;
 
-    public FileManagerImpl(String address) {
-        this.path = new File(address);
+    public void setPath(File path) {
+        this.path = path;
+    }
 
+    public void init() {
         if (!path.exists()) {
             boolean isDirectoryCreated = path.mkdirs();
 

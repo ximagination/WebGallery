@@ -1,14 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<%@ page import="static web.servlets.LogIn.AUTENTIFICATION" %>
-<%@ page import="static web.servlets.LogIn.PASSWORD" %>
-<%@ page import="static web.servlets.LogIn.LOGIN" %>
-<%@ page import="static web.servlets.LogIn.*" %>
-<%@ page import="static web.servlets.ImageUpload.*" %>
-
-<%@ page import="web.servlets.ImageUpload" %>
-<%@ page import="web.servlets.LogIn" %>
-<%@ page import="web.servlets.LogOut" %>
+<%@ taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -16,14 +7,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>WebGallery</title>
     <link type="text/css"
-          href="/css/bootstrap.css"
+          href="/resources/css/bootstrap.css"
           media="all" rel="stylesheet">
 </head>
 <body>
 
 <c:if test="${sessionScope.warning != null}">
+    style="width: 400px"
     <span
-            style="width: 400px"
             class="label label-warning">
             Authentication failed because
             <c:out
@@ -40,42 +31,49 @@
 
             <div class="nav-collapse collapse">
 
-                <form class="navbar-form pull-right" action="<%=LogIn.class.getSimpleName()%>" method="post"
-                      accept-charset="UTF-8">
+                <f:form
+                        commandName="login"
+                        class="navbar-form pull-right"
+                        action="Login"
+                        method="post"
+                        accept-charset="UTF-8">
 
-                    <input name="<%=LOGIN%>"
-                           class="input"
-                           type="text"
-                           placeholder="Login"
-                           maxlength="32">
+                    <f:errors cssClass="label label-warning" path="login"/>
+                    <f:errors cssClass="label label-warning" path="password"/>
 
-                    <input name="<%=PASSWORD%>"
-                           type="password"
-                           placeholder="Password"
-                           maxlength="32">
+                    <f:input
+                            path="login"
+                            class="input"
+                            type="text"
+                            placeholder="Login"
+                            maxlength="32"/>
 
-                    <strong>
-                        <button
-                                class="btn"
-                                type="submit"
-                                name="<%=AUTENTIFICATION%>">Autentificate
-                        </button>
-                    </strong>
-                    <strong>
-                        <button
-                                class="btn"
-                                type="submit"
-                                name="<%=REGISTRATION%>">Register
-                        </button>
-                    </strong>
-                </form>
+                    <f:input
+                            path="password"
+                            type="password"
+                            placeholder="Password"
+                            maxlength="32"/>
+
+                    <button
+                            class="btn"
+                            type="submit"
+                            name="autentification">Autentificate
+                    </button>
+
+                    <button
+                            class="btn"
+                            type="submit"
+                            name="registration">Register
+                    </button>
+                </f:form>
+
             </div>
         </div>
     </div>
 </div>
 
 <c:if test="${sessionScope.user != null}">
-    <form action="<%=LogOut.class.getSimpleName()%>" method="post" accept-charset="UTF-8">
+    <form action="Logout" method="post" accept-charset="UTF-8">
         <span style="width: 200px" class="label label-success">Success authenticated <c:out
                 value="${sessionScope.user.login}"/> </span>
         <button type="submit" class="btn">Log out</button>
@@ -95,44 +93,44 @@
 <c:if test="${sessionScope.user != null}">
     <form
             class="form-horizontal"
-            action="<%=ImageUpload.class.getSimpleName()%>"
+            action="ImageUpload"
             method="post"
             enctype="multipart/form-data"
             accept-charset="UTF-8">
 
         <div class="control-group">
-            <label class="control-label" for="<%=NAME%>">Name</label>
+            <label class="control-label" for="name">Name</label>
 
             <div class="controls">
                 <input
-                        name="<%=NAME%>"
+                        name="name"
                         type="text"
-                        id="<%=NAME%>"
+                        id="name"
                         placeholder="Name">
             </div>
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="<%=COMMENT%>">Comment</label>
+            <label class="control-label" for="comment">Comment</label>
 
             <div class="controls">
                 <input
-                        name="<%=COMMENT%>"
+                        name="comment"
                         type="text"
-                        id="<%=COMMENT%>"
+                        id="comment"
                         placeholder="Comment">
             </div>
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="<%=PATH%>">Path to file</label>
+            <label class="control-label" for="path">Path to file</label>
 
             <div class="controls">
                 <input
-                        name="<%=PATH%>"
+                        name="path"
                         type="file"
                         accept="image/png, image/jpeg"
-                        id="<%=PATH%>"
+                        id="path"
                         placeholder="Path to file">
             </div>
         </div>
@@ -142,7 +140,7 @@
                 <button
                         class="btn"
                         type="submit"
-                        name="<%=UPLOAD%>">Send
+                        name="upload">Send
                 </button>
             </div>
         </div>

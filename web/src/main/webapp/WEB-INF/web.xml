@@ -5,15 +5,6 @@
          id="WebApp_ID" version="3.0">
     <display-name>GalleryProject</display-name>
 
-    <welcome-file-list>
-        <welcome-file>/WEB-INF/jsp/LogIn.jsp</welcome-file>
-    </welcome-file-list>
-
-    <error-page>
-        <error-code>401</error-code>
-        <location>/WEB-INF/jsp/LogIn.jsp</location>
-    </error-page>
-
     <!--^^^^^^^^-->
     <!--Servlets-->
     <!--........-->
@@ -43,11 +34,11 @@
         <filter-class>web.filters.AuthenticationFilter</filter-class>
         <init-param>
             <param-name>default_page</param-name>
-            <param-value>/LogIn.jsp</param-value>
+            <param-value>/WEB-INF/index.jsp</param-value>
         </init-param>
         <init-param>
             <param-name>public_pages</param-name>
-            <param-value>/LogIn , /LogOut</param-value>
+            <param-value>/Login , /Logout</param-value>
         </init-param>
     </filter>
     <filter-mapping>
@@ -65,8 +56,16 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/spring-module.xml
+            /WEB-INF/spring-context.xml
         </param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.properties</param-value>
     </context-param>
 
 </web-app>
