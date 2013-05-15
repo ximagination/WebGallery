@@ -1,6 +1,6 @@
 package web.filters;
 
-import web.servlets.LogIn;
+import web.utils.SessionUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +51,7 @@ public class AuthenticationFilter implements Filter {
     }
 
     private boolean isAuthenticated(HttpServletRequest req) {
-        return LogIn.isUserAuthenticated(req);
+        return SessionUtils.isUserAuthenticated(req);
     }
 
     private boolean isDefaultPage(String path) {
@@ -63,7 +63,7 @@ public class AuthenticationFilter implements Filter {
     }
 
     private void authPage(HttpServletResponse req) throws IOException {
-        req.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        req.sendRedirect("/");
     }
 
     private boolean isPublicPage(String path) {

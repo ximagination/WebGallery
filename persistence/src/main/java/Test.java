@@ -1,7 +1,5 @@
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import persistence.dao.implementation.ImageDAOImpl;
-import persistence.dao.implementation.UserDAOImpl;
 import persistence.dao.interfaces.BaseDAO;
 
 import java.io.File;
@@ -72,8 +70,10 @@ public class Test {
     private static void create() {
         ArrayList<BaseDAO<?, ?>> tables = new ArrayList<>();
 
-        tables.add(new UserDAOImpl());
-        tables.add(new ImageDAOImpl());
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("spring-persistence-config.xml");
+
+        tables.add((BaseDAO<?, ?>) ctx.getBean("userDAO"));
+        tables.add((BaseDAO<?, ?>) ctx.getBean("imageDAO"));
 
         for (BaseDAO<?, ?> each : tables) {
             each.initScheme();

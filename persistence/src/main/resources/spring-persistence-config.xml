@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <bean id="applicationProperties"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:persistence.properties"/>
+    </bean>
+
+    <bean id="source" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <constructor-arg type="java.lang.String" value="${persistence.jdbc.url}"/>
+        <constructor-arg type="java.lang.String" value="${persistence.jdbc.user}"/>
+        <constructor-arg type="java.lang.String" value="${persistence.jdbc.password}"/>
+        <property name="driverClassName" value="${persistence.jdbc.driverClassName}"/>
+    </bean>
+
+    <bean id="fileManager" class="persistence.dao.fileManager.FileManagerImpl"/>
+    <bean id="connector" class="persistence.connectAndSource.Connector"/>
+    <bean id="imageDAO" class="persistence.dao.jdbcTemplateImpl.ImageDAOImpl"/>
+    <bean id="userDAO" class="persistence.dao.jdbcTemplateImpl.UserDAOImpl"/>
+
+</beans>
