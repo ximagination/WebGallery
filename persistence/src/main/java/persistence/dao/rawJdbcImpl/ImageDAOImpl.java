@@ -1,7 +1,6 @@
 package persistence.dao.rawJdbcImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
 import persistence.dao.abstractDAOImpl.AbstractImageDAO;
@@ -30,22 +29,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     static final String COMMENT = "comment";
     static final String TIMESTAMP = "timestamp";
 
-    // LIMITS
-    @Value(value = "${persistence.dao.rawJdbcImpl.ImageDAOImpl.nameLimit}")
-    private int NAME_LIMIT;
-
-    @Value(value = "${persistence.dao.rawJdbcImpl.ImageDAOImpl.commentLimit}")
-    private int COMMENT_LIMIT;
-
     // SQL
-    private final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
-            + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
-            + USER_ID + " INTEGER NOT NULL,"
-            + NAME + " VARCHAR(" + NAME_LIMIT + ") NOT NULL ,"
-            + COMMENT + " VARCHAR(" + COMMENT_LIMIT + ") NOT NULL DEFAULT '',"
-            + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
-            " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
-
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
             + USER_ID + ","
             + NAME + ","
@@ -73,23 +57,29 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
         Connection c = getConnection();
         Statement stat = null;
 
+        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+                + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                + USER_ID + " INTEGER NOT NULL,"
+                + NAME + " VARCHAR(" + super.getNameLimit() + ") NOT NULL ,"
+                + COMMENT + " VARCHAR(" + super.getCommentLimit() + ") NOT NULL DEFAULT '',"
+                + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
+                " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
+
         try {
-            try {
-                stat = c.createStatement();
+            stat = c.createStatement();
 
                 /*
                 Create table or throw
                  */
-                stat.execute(CREATE_TABLE);
-            } catch (SQLException e) {
+            stat.execute(createTable);
+        } catch (SQLException e) {
                 /*
                 User invoke method create() multiple times or table user is not created.
                  */
-                throw new TableAlreadyExistsException("Table " + TABLE_NAME + " already exists " +
-                        "or " +
-                        "table " + UserDAOImpl.TABLE_NAME + " on which this table references to is not created. " +
-                        "See stack trace for more details", e);
-            }
+            throw new TableAlreadyExistsException("Table " + TABLE_NAME + " already exists " +
+                    "or " +
+                    "table " + UserDAOImpl.TABLE_NAME + " on which this table references to is not created. " +
+                    "See stack trace for more details", e);
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -271,15 +261,5 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     private Connection getConnection() {
         return connector.newConnection();
-    }
-
-    @Override
-    protected int getNameLimit() {
-        return NAME_LIMIT;
-    }
-
-    @Override
-    protected int getCommentLimit() {
-        return COMMENT_LIMIT;
     }
 }

@@ -1,7 +1,6 @@
 package persistence.dao.jdbcTemplateImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -45,22 +44,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     static final String COMMENT = "comment";
     static final String TIMESTAMP = "timestamp";
 
-    // LIMITS
-    @Value(value = "${persistence.dao.jdbcTemplateImpl.ImageDAOImpl.nameLimit}")
-    private int NAME_LIMIT;
-
-    @Value(value = "${persistence.dao.jdbcTemplateImpl.ImageDAOImpl.commentLimit}")
-    private int COMMENT_LIMIT;
-
     // SQL
-    private final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
-            + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
-            + USER_ID + " INTEGER NOT NULL,"
-            + NAME + " VARCHAR(" + NAME_LIMIT + ") NOT NULL ,"
-            + COMMENT + " VARCHAR(" + COMMENT_LIMIT + ") NOT NULL DEFAULT '',"
-            + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
-            " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
-
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
             + USER_ID + ","
             + NAME + ","
@@ -86,7 +70,15 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     @Override
     public void initScheme() throws PersistenceException {
-        getTemplate().execute(CREATE_TABLE, Collections.EMPTY_MAP, null);
+        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+                + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                + USER_ID + " INTEGER NOT NULL,"
+                + NAME + " VARCHAR(" + super.getNameLimit() + ") NOT NULL ,"
+                + COMMENT + " VARCHAR(" + super.getCommentLimit() + ") NOT NULL DEFAULT '',"
+                + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
+                " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
+
+        getTemplate().execute(createTable, Collections.EMPTY_MAP, null);
     }
 
     @Override
@@ -106,7 +98,13 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
             throw new PersistenceException("Creating image failed, no rows affected after insert. SQL " + INSERT);
         }
 
-        image.setId(keyHolder.getKey().intValue());
+        Number key = keyHolder.getKey();
+
+        if (key == null) {
+            throw new PersistenceException("Creating image failed, no generated key obtained.");
+        }
+
+        image.setId(key.intValue());
     }
 
     @Override
@@ -163,15 +161,5 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
         image.setTimestamp(rs.getTimestamp(TIMESTAMP));
 
         return image;
-    }
-
-    @Override
-    protected int getNameLimit() {
-        return NAME_LIMIT;
-    }
-
-    @Override
-    protected int getCommentLimit() {
-        return COMMENT_LIMIT;
     }
 }

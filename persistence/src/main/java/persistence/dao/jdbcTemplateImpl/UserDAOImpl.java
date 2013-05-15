@@ -1,7 +1,6 @@
 package persistence.dao.jdbcTemplateImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -43,19 +42,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     static final String LOGIN = "login";
     static final String PASSWORD = "password";
 
-    // LIMITS
-    @Value(value = "${persistence.dao.jdbcTemplateImpl.UserDAOImpl.loginLimit}")
-    private int LOGIN_LIMIT;
-
-    @Value(value = "${persistence.dao.jdbcTemplateImpl.UserDAOImpl.passwordLimit}")
-    private int PASSWORD_LIMIT;
-
     // SQL
-    private final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
-            + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
-            + LOGIN + " VARCHAR(" + LOGIN_LIMIT + ") NOT NULL UNIQUE,"
-            + PASSWORD + " VARCHAR(" + PASSWORD_LIMIT + ") NOT NULL)";
-
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
             + LOGIN + ","
             + PASSWORD + ") VALUES (:" + LOGIN + ",:" + PASSWORD + ")";
@@ -81,7 +68,12 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
 
     @Override
     public void initScheme() throws PersistenceException {
-        getTemplate().execute(CREATE_TABLE, Collections.EMPTY_MAP, null);
+        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+                + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                + LOGIN + " VARCHAR(" + super.getLoginLimit() + ") NOT NULL UNIQUE,"
+                + PASSWORD + " VARCHAR(" + super.getPasswordLimit() + ") NOT NULL)";
+
+        getTemplate().execute(createTable, Collections.EMPTY_MAP, null);
     }
 
     @Override
@@ -100,7 +92,13 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
             throw new PersistenceException("Creating user failed, no rows affected after insert. SQL " + INSERT);
         }
 
-        user.setId(keyHolder.getKey().intValue());
+        Number key = keyHolder.getKey();
+
+        if (key == null) {
+            throw new PersistenceException("Creating user failed, no rows affected after insert. SQL " + INSERT);
+        }
+
+        user.setId(key.intValue());
     }
 
     @Override
@@ -170,15 +168,5 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
         };
 
         return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_LOGIN, params, rowMapper);
-    }
-
-    @Override
-    protected int getLoginLimit() {
-        return LOGIN_LIMIT;
-    }
-
-    @Override
-    protected int getPasswordLimit() {
-        return PASSWORD_LIMIT;
     }
 }

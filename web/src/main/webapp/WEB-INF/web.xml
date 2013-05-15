@@ -56,7 +56,6 @@
             /WEB-INF/spring-web-config.xml
         </param-value>
     </context-param>
-
     <context-param>
         <param-name>log4jConfigLocation</param-name>
         <param-value>/WEB-INF/log4j.properties</param-value>

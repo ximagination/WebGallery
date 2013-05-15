@@ -1,7 +1,6 @@
 package persistence.dao.rawJdbcImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
 import persistence.dao.abstractDAOImpl.AbstractUserDAO;
@@ -25,19 +24,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     static final String LOGIN = "login";
     static final String PASSWORD = "password";
 
-    // LIMITS
-    @Value(value = "${persistence.dao.rawJdbcImpl.UserDAOImpl.loginLimit}")
-    private int LOGIN_LIMIT;
-
-    @Value(value = "${persistence.dao.rawJdbcImpl.UserDAOImpl.passwordLimit}")
-    private int PASSWORD_LIMIT;
-
     // SQL
-    private final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
-            + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
-            + LOGIN + " VARCHAR(" + LOGIN_LIMIT + ") NOT NULL UNIQUE,"
-            + PASSWORD + " VARCHAR(" + PASSWORD_LIMIT + ") NOT NULL)";
-
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
             + LOGIN + ","
             + PASSWORD + ") VALUES (?,?)";
@@ -65,6 +52,11 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
         Connection c = getConnection();
         Statement stat = null;
 
+        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+                + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
+                + LOGIN + " VARCHAR(" + super.getLoginLimit() + ") NOT NULL UNIQUE,"
+                + PASSWORD + " VARCHAR(" + super.getPasswordLimit() + ") NOT NULL)";
+
         try {
             try {
                 stat = c.createStatement();
@@ -72,7 +64,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
                 /*
                 Create table or throw
                  */
-                stat.execute(CREATE_TABLE);
+                stat.execute(createTable);
             } catch (SQLException e) {
                 /*
                 User invoke method create() multiple times. Table already exists.
@@ -294,16 +286,6 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
 
     private Connection getConnection() {
         return connector.newConnection();
-    }
-
-    @Override
-    protected int getLoginLimit() {
-        return LOGIN_LIMIT;
-    }
-
-    @Override
-    protected int getPasswordLimit() {
-        return PASSWORD_LIMIT;
     }
 
 }

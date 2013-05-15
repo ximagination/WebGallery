@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import persistence.dao.interfaces.FileManager;
 import persistence.exception.PersistenceException;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 
 /**
@@ -20,6 +21,7 @@ public class FileManagerImpl implements FileManager {
     @Value(value = "${persistence.fileManager.pathToImages}")
     private File path;
 
+    @PostConstruct
     public void init() {
         if (!path.exists()) {
             boolean isDirectoryCreated = path.mkdirs();

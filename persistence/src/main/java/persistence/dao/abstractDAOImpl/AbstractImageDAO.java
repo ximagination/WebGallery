@@ -1,5 +1,6 @@
 package persistence.dao.abstractDAOImpl;
 
+import org.springframework.beans.factory.annotation.Value;
 import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.*;
 import persistence.struct.Image;
@@ -13,6 +14,13 @@ import persistence.utils.ValidationUtils;
  */
 abstract public class AbstractImageDAO implements ImageDAO {
 
+    // LIMITS
+    @Value(value = "${persistence.dao.Image.nameLimit}")
+    private int nameLimit;
+
+    @Value(value = "${persistence.dao.Image.commentLimit}")
+    private int commentLimit;
+
     protected abstract void insertImpl(Image image) throws ValidationException;
 
     protected abstract int updateImpl(Image image) throws ValidationException;
@@ -21,9 +29,13 @@ abstract public class AbstractImageDAO implements ImageDAO {
 
     protected abstract Image fetchByPrimaryImpl(Integer id);
 
-    protected abstract int getNameLimit();
+    protected int getNameLimit() {
+        return nameLimit;
+    }
 
-    protected abstract int getCommentLimit();
+    protected int getCommentLimit() {
+        return commentLimit;
+    }
 
     public void insert(Image image) throws ValidationException {
         validatePrimary(image.getUserId());

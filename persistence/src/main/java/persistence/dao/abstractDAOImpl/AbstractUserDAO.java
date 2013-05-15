@@ -1,5 +1,6 @@
 package persistence.dao.abstractDAOImpl;
 
+import org.springframework.beans.factory.annotation.Value;
 import persistence.dao.interfaces.UserDAO;
 import persistence.exception.*;
 import persistence.struct.User;
@@ -13,6 +14,13 @@ import persistence.utils.ValidationUtils;
  */
 abstract public class AbstractUserDAO implements UserDAO {
 
+    // LIMITS
+    @Value(value = "${persistence.dao.User.loginLimit}")
+    private int loginLimit;
+
+    @Value(value = "${persistence.dao.User.passwordLimit}")
+    private int passwordLimit;
+
     protected abstract void insertImpl(User user) throws ValidationException;
 
     protected abstract int updateImpl(User user) throws ValidationException;
@@ -23,9 +31,13 @@ abstract public class AbstractUserDAO implements UserDAO {
 
     protected abstract User fetchByLoginImpl(String login);
 
-    protected abstract int getLoginLimit();
+    protected int getLoginLimit() {
+        return loginLimit;
+    }
 
-    protected abstract int getPasswordLimit();
+    protected int getPasswordLimit() {
+        return passwordLimit;
+    }
 
     @Override
     public User fetchByLogin(String login) throws ValidationException {
