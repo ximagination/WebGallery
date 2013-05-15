@@ -1,20 +1,24 @@
-package persistence.dao.implementation;
+package persistence.dao.rawJdbcImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
+import persistence.dao.abstractDAOImpl.AbstractImageDAO;
 import persistence.dao.interfaces.ImageDAO;
-import persistence.exception.*;
+import persistence.exception.ForeignKeyConstraintException;
+import persistence.exception.PersistenceException;
+import persistence.exception.TableAlreadyExistsException;
+import persistence.exception.ValidationException;
 import persistence.struct.Image;
 import persistence.utils.DatabaseUtils;
-import persistence.utils.ValidationUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class ImageDAOImpl implements ImageDAO {
+public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     // TABLE
     static final String TABLE_NAME = "image";
@@ -27,11 +31,14 @@ public class ImageDAOImpl implements ImageDAO {
     static final String TIMESTAMP = "timestamp";
 
     // LIMITS
-    private static final int NAME_LIMIT = 64;
-    private static final int COMMENT_LIMIT = 255;
+    @Value(value = "${persistence.dao.rawJdbcImpl.ImageDAOImpl.nameLimit}")
+    private int NAME_LIMIT;
+
+    @Value(value = "${persistence.dao.rawJdbcImpl.ImageDAOImpl.commentLimit}")
+    private int COMMENT_LIMIT;
 
     // SQL
-    private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
+    private final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
             + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
             + USER_ID + " INTEGER NOT NULL,"
             + NAME + " VARCHAR(" + NAME_LIMIT + ") NOT NULL ,"
@@ -90,16 +97,7 @@ public class ImageDAOImpl implements ImageDAO {
     }
 
     @Override
-    public void insert(Image image) throws ValidationException {
-
-        int userId = image.getUserId();
-        String name = image.getName();
-        String comment = image.getComment();
-
-        validatePrimary(userId);
-        validateName(name);
-        validateComment(comment);
-
+    protected void insertImpl(Image image) throws ValidationException {
         Connection c = getConnection();
         PreparedStatement stat = null;
         ResultSet primaryKeySet = null;
@@ -109,9 +107,9 @@ public class ImageDAOImpl implements ImageDAO {
             try {
                 stat = c.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
 
-                stat.setInt(1, userId);
-                stat.setString(2, name);
-                stat.setString(3, comment);
+                stat.setInt(1, image.getUserId());
+                stat.setString(2, image.getName());
+                stat.setString(3, image.getComment());
 
                 isInserted = stat.executeUpdate() > 0;
             } catch (SQLException e) {
@@ -121,7 +119,7 @@ public class ImageDAOImpl implements ImageDAO {
                 All validations by fields name and comment were produced ,
                 but userId not found when we insert new record.
                  */
-                throw new ForeignKeyConstraintException("Table " + UserDAOImpl.TABLE_NAME + " don't contains user with id=" + userId, e);
+                throw new ForeignKeyConstraintException("Table " + UserDAOImpl.TABLE_NAME + " don't contains user with id=" + image.getUserId(), e);
             }
 
             if (!isInserted) {
@@ -149,48 +147,26 @@ public class ImageDAOImpl implements ImageDAO {
         }
     }
 
-
     @Override
-    public void update(Image image) throws ValidationException {
-        int id = image.getId();
-
-        String name = image.getName();
-        String comment = image.getComment();
-
-        validatePrimary(id);
-        validateName(name);
-        validateComment(comment);
-
+    protected int updateImpl(Image image) throws ValidationException {
         Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isUpdated;
-            try {
-                stat = c.prepareStatement(UPDATE);
+            stat = c.prepareStatement(UPDATE);
 
-                stat.setString(1, name);
-                stat.setString(2, comment);
+            stat.setString(1, image.getName());
+            stat.setString(2, image.getComment());
+            stat.setInt(3, image.getId());
 
-                isUpdated = stat.executeUpdate() > 0;
-            } catch (SQLException e) {
-                /*
-                In update method user can change image name and comment.
-                Constraint can't occurs because we already gone validate methods.
-                Unknown exception. Must not be occurs.
-                */
-                throw new PersistenceException(e);
-            }
-
+            return stat.executeUpdate();
+        } catch (SQLException e) {
             /*
             In update method user can change image name and comment.
             Constraint can't occurs because we already gone validate methods.
-            This error occurs because user not found by id.
+            Unknown exception. Must not be occurs.
             */
-            if (!isUpdated) {
-                throw new RecordNotFoundException("Record by id=" + id + " not found and image can't be updated");
-            }
-
+            throw new PersistenceException(e);
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -198,30 +174,21 @@ public class ImageDAOImpl implements ImageDAO {
     }
 
     @Override
-    public void delete(Integer id) throws ValidationException {
-        validatePrimary(id);
-
+    protected int deleteImpl(Integer id) throws ValidationException {
         Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isDeleted;
-            try {
-                stat = c.prepareStatement(DELETE);
+            stat = c.prepareStatement(DELETE);
 
-                stat.setInt(1, id);
+            stat.setInt(1, id);
 
-                isDeleted = stat.executeUpdate() > 0;
-            } catch (SQLException e) {
-                /*
-                Unknown exception. Must not be occurs.
-                */
-                throw new PersistenceException(e);
-            }
-
-            if (!isDeleted) {
-                throw new RecordNotFoundException("Record by id=" + id + " not found and image can't be deleted");
-            }
+            return stat.executeUpdate();
+        } catch (SQLException e) {
+            /*
+            Unknown exception. Must not be occurs.
+            */
+            throw new PersistenceException(e);
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -245,9 +212,9 @@ public class ImageDAOImpl implements ImageDAO {
             return result;
 
         } catch (SQLException e) {
-             /*
+            /*
             Unknown exception. Must not be occurs.
-             */
+            */
             throw new PersistenceException(e);
 
         } finally {
@@ -258,9 +225,7 @@ public class ImageDAOImpl implements ImageDAO {
     }
 
     @Override
-    public Image fetchByPrimary(Integer id) throws ValidationException {
-        validatePrimary(id);
-
+    protected Image fetchByPrimaryImpl(Integer id) {
         Connection c = getConnection();
         PreparedStatement stat = null;
         ResultSet rs = null;
@@ -308,23 +273,13 @@ public class ImageDAOImpl implements ImageDAO {
         return connector.newConnection();
     }
 
-    private void validatePrimary(Integer id) throws IncorrectPrimaryKeyException {
-        ValidationUtils.checkPrimary(id);
+    @Override
+    protected int getNameLimit() {
+        return NAME_LIMIT;
     }
 
-    private void validateName(String name) throws ValidationException {
-        if (name == null || name.isEmpty()) {
-            throw new EmptyFieldException("Field photo name must not be empty.");
-        }
-
-        if (name.length() > NAME_LIMIT) {
-            throw new ToLongFieldException("Field photo name is too long. Max size of filed is " + NAME_LIMIT, NAME_LIMIT);
-        }
-    }
-
-    private void validateComment(String comment) throws ValidationException {
-        if (comment != null && comment.length() > NAME_LIMIT) {
-            throw new ToLongFieldException("Field photo comment is too long. Max size of filed is " + COMMENT_LIMIT, COMMENT_LIMIT);
-        }
+    @Override
+    protected int getCommentLimit() {
+        return COMMENT_LIMIT;
     }
 }

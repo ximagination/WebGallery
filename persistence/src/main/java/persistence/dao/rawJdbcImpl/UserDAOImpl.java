@@ -1,20 +1,21 @@
-package persistence.dao.implementation;
+package persistence.dao.rawJdbcImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
+import persistence.dao.abstractDAOImpl.AbstractUserDAO;
 import persistence.dao.interfaces.UserDAO;
 import persistence.exception.*;
 import persistence.struct.User;
 import persistence.utils.DatabaseUtils;
-import persistence.utils.ValidationUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class UserDAOImpl implements UserDAO {
+public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
 
     // TABLE
     static final String TABLE_NAME = "user";
@@ -25,11 +26,14 @@ public class UserDAOImpl implements UserDAO {
     static final String PASSWORD = "password";
 
     // LIMITS
-    private static final int LOGIN_LIMIT = 32;
-    private static final int PASSWORD_LIMIT = 32;
+    @Value(value = "${persistence.dao.rawJdbcImpl.UserDAOImpl.loginLimit}")
+    private int LOGIN_LIMIT;
+
+    @Value(value = "${persistence.dao.rawJdbcImpl.UserDAOImpl.passwordLimit}")
+    private int PASSWORD_LIMIT;
 
     // SQL
-    private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
+    private final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
             + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
             + LOGIN + " VARCHAR(" + LOGIN_LIMIT + ") NOT NULL UNIQUE,"
             + PASSWORD + " VARCHAR(" + PASSWORD_LIMIT + ") NOT NULL)";
@@ -82,13 +86,9 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void insert(User user) throws ValidationException {
-
+    protected void insertImpl(User user) throws LoginAlreadyExistsException {
         String login = user.getLogin();
         String password = user.getPassword();
-
-        validateLogin(login);
-        validatePassword(password);
 
         Connection c = getConnection();
         PreparedStatement stat = null;
@@ -139,42 +139,25 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void update(User user) throws ValidationException {
+    protected int updateImpl(User user) throws ValidationException {
         int id = user.getId();
-        String login = user.getLogin();
         String password = user.getPassword();
-
-        validatePrimary(id);
-        validateLogin(login);
-        validatePassword(password);
 
         Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isUpdated;
-            try {
-                stat = c.prepareStatement(UPDATE);
+            stat = c.prepareStatement(UPDATE);
 
-                stat.setString(1, password);
-                stat.setInt(2, id);
+            stat.setString(1, password);
+            stat.setInt(2, id);
 
-                isUpdated = stat.executeUpdate() > 0;
-            } catch (SQLException e) {
-                /*
-                Unknown exception. Must not be occurs.
-                */
-                throw new PersistenceException(e);
-            }
-
-             /*
-             In update method user can't change login and constraint can't occurs by login field(Login is unique).
-             This error occurs because user not found by id
-             */
-            if (!isUpdated) {
-                throw new RecordNotFoundException("Record by id=" + id + " not found and user can't be updated");
-            }
-
+            return stat.executeUpdate();
+        } catch (SQLException e) {
+            /*
+            Unknown exception. Must not be occurs.
+            */
+            throw new PersistenceException(e);
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -182,32 +165,22 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void delete(Integer id) throws ValidationException {
-        validatePrimary(id);
-
+    protected int deleteImpl(Integer id) throws ValidationException {
         Connection c = getConnection();
         PreparedStatement stat = null;
 
         try {
-            boolean isDeleted;
-            try {
-                stat = c.prepareStatement(DELETE);
+            stat = c.prepareStatement(DELETE);
 
-                stat.setInt(1, id);
+            stat.setInt(1, id);
 
-                isDeleted = stat.executeUpdate() > 0;
-            } catch (SQLException e) {
-                /*
-                 This exception occurs because this user have some images or other records.
-                 Firstly remove this items and then user record.
-                 */
-                throw new ForeignKeyConstraintException("User can't be remove by id=" + id, e);
-            }
-
-            if (!isDeleted) {
-                throw new RecordNotFoundException("Record by id=" + id + " not found and user can't be deleted");
-            }
-
+            return stat.executeUpdate();
+        } catch (SQLException e) {
+            /*
+            This exception occurs because this user have some images or other records.
+            Firstly remove this items and then user record.
+            */
+            throw new ForeignKeyConstraintException("User can't be remove by id=" + id, e);
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -231,9 +204,9 @@ public class UserDAOImpl implements UserDAO {
             return result;
 
         } catch (SQLException e) {
-             /*
+            /*
             Unknown exception. Must not be occurs.
-             */
+            */
             throw new PersistenceException(e);
 
         } finally {
@@ -254,9 +227,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public User fetchByPrimary(Integer id) throws IncorrectPrimaryKeyException {
-        validatePrimary(id);
-
+    protected User fetchByPrimaryImpl(Integer id) {
         Connection c = getConnection();
         PreparedStatement stat = null;
         ResultSet rs = null;
@@ -289,9 +260,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public User fetchByLogin(String login) throws ValidationException {
-        validateLogin(login);
-
+    protected User fetchByLoginImpl(String login) {
         Connection c = getConnection();
         PreparedStatement stat = null;
         ResultSet rs = null;
@@ -327,27 +296,14 @@ public class UserDAOImpl implements UserDAO {
         return connector.newConnection();
     }
 
-    private void validatePrimary(Integer id) throws IncorrectPrimaryKeyException {
-        ValidationUtils.checkPrimary(id);
+    @Override
+    protected int getLoginLimit() {
+        return LOGIN_LIMIT;
     }
 
-    private void validateLogin(String login) throws ValidationException {
-        if (login == null || login.isEmpty()) {
-            throw new EmptyFieldException("Field login must not be empty.");
-        }
-
-        if (login.length() > LOGIN_LIMIT) {
-            throw new ToLongFieldException("Field login is too long. Max size of filed is " + LOGIN_LIMIT, LOGIN_LIMIT);
-        }
+    @Override
+    protected int getPasswordLimit() {
+        return PASSWORD_LIMIT;
     }
 
-    private void validatePassword(String password) throws ValidationException {
-        if (password == null || password.isEmpty()) {
-            throw new EmptyFieldException("Field password must not be empty.");
-        }
-
-        if (password.length() > PASSWORD_LIMIT) {
-            throw new ToLongFieldException("Field password is too long. Max size of filed is " + PASSWORD_LIMIT, PASSWORD_LIMIT);
-        }
-    }
 }
