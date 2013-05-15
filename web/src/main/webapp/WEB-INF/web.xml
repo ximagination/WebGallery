@@ -5,6 +5,10 @@
          id="WebApp_ID" version="3.0">
     <display-name>GalleryProject</display-name>
 
+    <welcome-file-list>
+        <welcome-file>/Login</welcome-file>
+    </welcome-file-list>
+
     <!--^^^^^^^^-->
     <!--Servlets-->
     <!--........-->
@@ -59,6 +63,14 @@
     <context-param>
         <param-name>log4jConfigLocation</param-name>
         <param-value>/WEB-INF/log4j.properties</param-value>
+    </context-param>
+    <context-param>
+        <param-name>spring.profiles.active</param-name>
+        <param-value>raw</param-value>
+    </context-param>
+    <context-param>
+        <param-name>spring.profiles.default</param-name>
+        <param-value>raw</param-value>
     </context-param>
 
     <listener>
