@@ -3,7 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:annotation-config/>
 
@@ -21,7 +23,15 @@
 
     <bean id="fileManager" class="persistence.dao.fileManager.FileManagerImpl"/>
     <bean id="connector" class="persistence.connectAndSource.Connector"/>
-    <bean id="imageDAO" class="persistence.dao.jdbcTemplateImpl.ImageDAOImpl"/>
-    <bean id="userDAO" class="persistence.dao.jdbcTemplateImpl.UserDAOImpl"/>
+
+    <beans profile="template">
+        <bean id="imageDAO" class="persistence.dao.jdbcTemplateImpl.ImageDAOImpl"/>
+        <bean id="userDAO" class="persistence.dao.jdbcTemplateImpl.UserDAOImpl"/>
+    </beans>
+
+    <beans profile="raw">
+        <bean id="imageDAO" class="persistence.dao.rawJdbcImpl.ImageDAOImpl"/>
+        <bean id="userDAO" class="persistence.dao.rawJdbcImpl.UserDAOImpl"/>
+    </beans>
 
 </beans>

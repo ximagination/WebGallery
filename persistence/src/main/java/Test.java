@@ -70,10 +70,21 @@ public class Test {
     private static void create() {
         ArrayList<BaseDAO<?, ?>> tables = new ArrayList<>();
 
+
         ApplicationContext ctx = new ClassPathXmlApplicationContext("spring-persistence-config.xml");
 
-        tables.add((BaseDAO<?, ?>) ctx.getBean("userDAO"));
-        tables.add((BaseDAO<?, ?>) ctx.getBean("imageDAO"));
+        String type = "raw";
+        if ("raw".equals(type)) {
+            tables.add(ctx.getBean(persistence.dao.rawJdbcImpl.UserDAOImpl.class));
+            tables.add(ctx.getBean(persistence.dao.rawJdbcImpl.ImageDAOImpl.class));
+
+        } else if ("template".equals(type)) {
+            tables.add(ctx.getBean(persistence.dao.jdbcTemplateImpl.UserDAOImpl.class));
+            tables.add(ctx.getBean(persistence.dao.jdbcTemplateImpl.ImageDAOImpl.class));
+
+        } else {
+            throw new UnsupportedOperationException("unknown type of profile " + type);
+        }
 
         for (BaseDAO<?, ?> each : tables) {
             each.initScheme();
