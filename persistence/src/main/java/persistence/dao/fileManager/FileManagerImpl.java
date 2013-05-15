@@ -1,10 +1,12 @@
-package persistence.dao.implementation;
+package persistence.dao.fileManager;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import persistence.dao.interfaces.FileManager;
 import persistence.exception.PersistenceException;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 
 /**
@@ -16,11 +18,11 @@ import java.io.*;
 @Repository
 public class FileManagerImpl implements FileManager {
 
-    private final File path;
+    @Value(value = "${persistence.fileManager.pathToImages}")
+    private File path;
 
-    public FileManagerImpl(String address) {
-        this.path = new File(address);
-
+    @PostConstruct
+    public void init() {
         if (!path.exists()) {
             boolean isDirectoryCreated = path.mkdirs();
 

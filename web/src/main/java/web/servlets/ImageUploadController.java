@@ -4,21 +4,22 @@ import galleryService.interfaces.ImageService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
-import web.utils.JSPUtils;
+import web.pojo.Login;
 import web.utils.SessionUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static web.utils.JSPUtils.DEFAULT_PAGE;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,16 +27,12 @@ import java.io.IOException;
  * Date: 4/25/13
  * Time: 1:38 PM
  */
-@MultipartConfig
 @Controller
 @RequestMapping("/ImageUpload")
-public class ImageUpload extends HttpServlet {
+public class ImageUploadController {
 
     //Session params
     public static final String UPLOAD_MESSAGE = "upload_message";
-
-    //Action
-    public static final String UPLOAD = "upload";
 
     //Fields
     public static final String NAME = "name";
@@ -43,26 +40,23 @@ public class ImageUpload extends HttpServlet {
     public static final String PATH = "path";
 
     //Logger
-    private static final Logger LOGGER = Logger.getLogger(ImageUpload.class);
+    private static final Logger LOGGER = Logger.getLogger(ImageUploadController.class);
+
+    private ImageService imageService;
 
     @Required
-    public void setService(ImageService service) {
-        this.service = service;
+    public void setImageService(ImageService imageService) {
+        this.imageService = imageService;
     }
 
-    private ImageService service;
-
-    @RequestMapping(method = RequestMethod.GET)
-    protected void doGet(HttpServletRequest in, HttpServletResponse out) throws ServletException, IOException {
-        /*
-         Ignore.
-         */
-        JSPUtils.showHomePage(out);
+    @RequestMapping(method = GET)
+    protected String doGet(HttpServletRequest in, HttpServletResponse out) {
+        return "redirect:/Login";
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    protected void doPost(HttpServletRequest in, HttpServletResponse out,
-                          @RequestParam(value = PATH) MultipartFile file) throws ServletException, IOException {
+    @RequestMapping(method = POST)
+    protected String doPost(HttpServletRequest in, Model model,
+                            @RequestParam(value = PATH) MultipartFile file) {
         /*
         Always remove upload error message
         */
@@ -71,11 +65,14 @@ public class ImageUpload extends HttpServlet {
         byte[] data = loadFile(file);
 
         if (data != null) {
-            saveImage(in, out, data);
+            saveImage(in, data);
 
         } else {
-            onFail(in, out, "can't upload file. Some error occurs.");
+            onFail(in, "can't upload file. Some error occurs.");
         }
+
+        model.addAttribute("login", new Login());
+        return DEFAULT_PAGE;
     }
 
     private byte[] loadFile(MultipartFile file) {
@@ -88,7 +85,7 @@ public class ImageUpload extends HttpServlet {
         return image;
     }
 
-    private void saveImage(HttpServletRequest in, HttpServletResponse out, byte[] data) throws IOException {
+    private void saveImage(HttpServletRequest in, byte[] data) {
         User user = getUser(in);
 
         String name = in.getParameter(NAME);
@@ -99,34 +96,32 @@ public class ImageUpload extends HttpServlet {
         try {
             imageService.addImage(user, name, comment, data);
 
-            onSuccess(in, out);
+            onSuccess(in);
         } catch (ValidationException e) {
-            onFail(in, out, e.getMessage());
+            onFail(in, e.getMessage());
 
         } catch (IOException e) {
-            onFail(in, out, e.getMessage());
+            LOGGER.error("Failed on upload image. ", e);
+
+            onFail(in, e.getMessage());
 
         } catch (RuntimeException e) {
             LOGGER.error("Failed on upload image. ", e);
 
-            onFail(in, out, e.getMessage());
+            onFail(in, e.getMessage());
         }
     }
 
     private User getUser(HttpServletRequest in) {
-        return (User) SessionUtils.getAttribute(in, LogIn.USER);
+        return (User) SessionUtils.getAttribute(in, LoginController.USER);
     }
 
-    private void onSuccess(HttpServletRequest in, HttpServletResponse out) throws IOException {
+    private void onSuccess(HttpServletRequest in) {
         addMessage(in, "File uploaded");
-
-        JSPUtils.showHomePage(out);
     }
 
-    private void onFail(HttpServletRequest in, HttpServletResponse out, String message) throws IOException {
+    private void onFail(HttpServletRequest in, String message) {
         addMessage(in, "Upload failed because " + message);
-
-        JSPUtils.showHomePage(out);
     }
 
     private void addMessage(HttpServletRequest in, String message) {
@@ -134,8 +129,6 @@ public class ImageUpload extends HttpServlet {
     }
 
     public ImageService getService() {
-        return service;
+        return imageService;
     }
-
-
 }

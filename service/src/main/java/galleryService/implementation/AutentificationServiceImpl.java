@@ -3,7 +3,7 @@ package galleryService.implementation;
 import galleryService.exception.IncorrectPasswordException;
 import galleryService.exception.LoginNotFoundException;
 import galleryService.interfaces.AutentificationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 import persistence.dao.interfaces.UserDAO;
 import persistence.exception.ValidationException;
@@ -18,8 +18,12 @@ import persistence.struct.User;
 @Service
 public class AutentificationServiceImpl implements AutentificationService {
 
-    @Autowired
     private UserDAO userDAO;
+
+    @Required
+    public void setUserDAO(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 
     /**
      * Create new record in database and autentificate user.
