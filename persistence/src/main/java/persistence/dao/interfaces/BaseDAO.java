@@ -1,6 +1,5 @@
 package persistence.dao.interfaces;
 
-import persistence.exception.PersistenceException;
 import persistence.exception.ValidationException;
 
 import java.util.List;
@@ -12,8 +11,6 @@ import java.util.List;
  * Time: 10:45 AM
  */
 public interface BaseDAO<T, K> {
-
-    void initScheme() throws PersistenceException;
 
     void insert(T o) throws ValidationException;
 

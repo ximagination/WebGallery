@@ -22,6 +22,15 @@
             <param-value>/WEB-INF/spring-web-config.xml</param-value>
         </init-param>
 
+        <init-param>
+            <param-name>spring.profiles.active</param-name>
+            <param-value>hibernate</param-value>
+        </init-param>
+        <init-param>
+            <param-name>spring.profiles.default</param-name>
+            <param-value>hibernate</param-value>
+        </init-param>
+
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -66,11 +75,11 @@
     </context-param>
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>raw</param-value>
+        <param-value>hibernate</param-value>
     </context-param>
     <context-param>
         <param-name>spring.profiles.default</param-name>
-        <param-value>raw</param-value>
+        <param-value>hibernate</param-value>
     </context-param>
 
     <listener>

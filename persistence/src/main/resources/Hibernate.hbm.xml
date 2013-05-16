@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="persistence.struct.User" table="user">
+
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+
+        <property name="login" type="java.lang.String">
+            <column name="login" length="32" not-null="true" unique="true"/>
+        </property>
+
+        <property name="password" type="java.lang.String">
+            <column name="password" length="32" not-null="true"/>
+        </property>
+
+    </class>
+
+    <class name="persistence.struct.Image" table="image">
+
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+
+        <property name="userId" type="int">
+            <column name="userId" not-null="true"/>
+        </property>
+
+        <property name="name" type="java.lang.String">
+            <column name="name" length="64" not-null="true"/>
+        </property>
+
+        <property name="comment" type="java.lang.String">
+            <column name="comment" length="255" not-null="true" default=""/>
+        </property>
+
+        <property name="timestamp" type="java.util.Date">
+            <column name="timestamp" default="CURRENT_TIMESTAMP"/>
+        </property>
+
+        <many-to-one name="user" column="id" insert="false" update="false"/>
+    </class>
+</hibernate-mapping>
