@@ -7,6 +7,7 @@
 	http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <mvc:resources mapping="/resources/**" location="/resources/"/>
+
     <mvc:annotation-driven/>
 
     <import resource="classpath*:spring-persistence-config.xml"/>

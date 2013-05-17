@@ -4,6 +4,7 @@ import galleryService.exception.EmptyImageException;
 import galleryService.interfaces.ImageService;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import persistence.dao.interfaces.FileManager;
 import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.ValidationException;
@@ -34,6 +35,7 @@ public class ImageServiceImpl implements ImageService {
         this.fileManager = fileManager;
     }
 
+    @Transactional
     public void addImage(User user, String name, String comment, byte[] data) throws ValidationException, IOException {
 
         if (data == null || data.length == 0) {
