@@ -1,7 +1,6 @@
 package persistence.utils;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 
 import java.io.Serializable;
@@ -21,24 +20,17 @@ public class HibernateUtils {
 
     public static int insert(Session session, Object objectForInsert) {
         checkSession(session);
+        checkTransaction(session);
         notNull(objectForInsert, "objectForInsert");
 
         int resultOfInsert = 1;
-        Transaction tx = null;
+
         try {
-            tx = session.beginTransaction();
-
             session.save(objectForInsert);
-
-            tx.commit();
         } catch (HibernateException e) {
             log(e);
 
-            if (tx != null) {
-                tx.rollback();
-            }
             resultOfInsert = 0;
-
         } finally {
             session.close();
         }
@@ -48,23 +40,15 @@ public class HibernateUtils {
 
     public static int update(Session session, Object objectForUpdate) {
         checkSession(session);
+        checkTransaction(session);
         notNull(objectForUpdate, "objectForUpdate");
 
-        Transaction tx = null;
         int resultOfUpdate = 1;
 
         try {
-            tx = session.beginTransaction();
-
             session.update(objectForUpdate);
-
-            tx.commit();
         } catch (HibernateException e) {
             log(e);
-
-            if (tx != null) {
-                tx.rollback();
-            }
 
             resultOfUpdate = 0;
         } finally {
@@ -73,6 +57,7 @@ public class HibernateUtils {
 
         return resultOfUpdate;
     }
+
 
     public static <T> List<T> getAll(Session session, Class<T> cls) {
         checkSession(session);
@@ -97,12 +82,12 @@ public class HibernateUtils {
         }
     }
 
-    public static int getCountOfQueryUpdate(Session session, String sql) {
+    public static int getCountOfQueryUpdate(Session session, String hql) {
         checkSession(session);
-        notNull(sql, "id");
+        notNull(hql, "id");
 
         try {
-            return session.createQuery(sql).executeUpdate();
+            return session.createQuery(hql).executeUpdate();
         } finally {
             session.close();
         }
@@ -110,6 +95,12 @@ public class HibernateUtils {
 
     private static void log(HibernateException e) {
         e.printStackTrace();
+    }
+
+    private static void checkTransaction(Session session) {
+        if (!session.getTransaction().isActive()) {
+            throw new IllegalArgumentException("Transaction not available");
+        }
     }
 
     private static <T> void notNull(Object o, String name) {

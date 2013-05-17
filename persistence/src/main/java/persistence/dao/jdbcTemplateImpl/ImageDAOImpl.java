@@ -79,7 +79,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
                 + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
                 " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
 
-        getTemplate().execute(createTable, Collections.EMPTY_MAP, null);
+        getTemplate().update(createTable, Collections.EMPTY_MAP);
     }
 
     @Override

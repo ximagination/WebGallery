@@ -18,7 +18,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     @Autowired
     private SessionFactory sessionFactory;
 
-    private static final String DELETE_SQL = "DELETE FROM image WHERE id=";
+    private static final String DELETE_HQL = "DELETE FROM image WHERE id=";
 
     private Session getSession() {
         return sessionFactory.openSession();
@@ -38,7 +38,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     @Override
     protected int deleteImpl(Integer id) {
-        return HibernateUtils.getCountOfQueryUpdate(getSession(), DELETE_SQL + id);
+        return HibernateUtils.getCountOfQueryUpdate(getSession(), DELETE_HQL + id);
     }
 
     @Override

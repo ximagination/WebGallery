@@ -74,7 +74,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
                 + LOGIN + " VARCHAR(" + super.getLoginLimit() + ") NOT NULL UNIQUE,"
                 + PASSWORD + " VARCHAR(" + super.getPasswordLimit() + ") NOT NULL)";
 
-        getTemplate().execute(createTable, Collections.EMPTY_MAP, null);
+        getTemplate().update(createTable, Collections.EMPTY_MAP);
     }
 
     @Override

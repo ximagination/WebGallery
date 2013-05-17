@@ -24,29 +24,6 @@
     <bean id="fileManager" class="persistence.dao.fileManager.FileManagerImpl"/>
     <bean id="connector" class="persistence.connectAndSource.Connector"/>
 
-    <bean id="sessionFactory"
-          class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-
-        <property name="dataSource">
-            <ref bean="source"/>
-        </property>
-
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.hbm2ddl.auto">${persistence.hibernate.hbm2ddl.auto}</prop>
-                <prop key="hibernate.dialect">${persistence.jdbc.h2Dialect}</prop>
-                <prop key="hibernate.show_sql">${persistence.hibernate.showSQL}</prop>
-                <prop key="hibernate.connection.pool_size">${persistence.hibernate.poolSize}</prop>
-            </props>
-        </property>
-
-        <property name="mappingResources">
-            <list>
-                <value>/Hibernate.hbm.xml</value>
-            </list>
-        </property>
-    </bean>
-
     <beans profile="raw">
         <bean id="userDAO" class="persistence.dao.rawJdbcImpl.UserDAOImpl"/>
         <bean id="imageDAO" class="persistence.dao.rawJdbcImpl.ImageDAOImpl"/>
@@ -60,5 +37,29 @@
     <beans profile="hibernate">
         <bean id="userDAO" class="persistence.dao.hibernateImpl.UserDAOImpl"/>
         <bean id="imageDAO" class="persistence.dao.hibernateImpl.ImageDAOImpl"/>
+
+        <bean id="sessionFactory"
+              class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+
+            <property name="dataSource">
+                <ref bean="source"/>
+            </property>
+
+            <property name="hibernateProperties">
+                <props>
+                    <prop key="hibernate.hbm2ddl.auto">${persistence.hibernate.hbm2ddl.auto}</prop>
+                    <prop key="hibernate.dialect">${persistence.jdbc.h2Dialect}</prop>
+                    <prop key="hibernate.show_sql">${persistence.hibernate.showSQL}</prop>
+                    <prop key="hibernate.connection.pool_size">${persistence.hibernate.poolSize}</prop>
+                </props>
+            </property>
+
+            <property name="mappingResources">
+                <list>
+                    <value>/Hibernate.hbm.xml</value>
+                </list>
+            </property>
+        </bean>
     </beans>
+
 </beans>
