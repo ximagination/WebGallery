@@ -12,6 +12,7 @@ import persistence.exception.ValidationException;
 import persistence.struct.Image;
 import persistence.utils.DatabaseUtils;
 
+import javax.annotation.PostConstruct;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,12 +53,12 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     @Autowired
     private Connector connector;
 
-    @Override
-    public void initScheme() throws PersistenceException {
+    @PostConstruct
+    protected void initScheme() throws PersistenceException {
         Connection c = getConnection();
         Statement stat = null;
 
-        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
                 + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
                 + USER_ID + " INTEGER NOT NULL,"
                 + NAME + " VARCHAR(" + super.getNameLimit() + ") NOT NULL ,"

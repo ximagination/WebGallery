@@ -16,6 +16,7 @@ import persistence.exception.RecordNotFoundException;
 import persistence.struct.Image;
 import persistence.utils.DatabaseUtils;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -68,9 +69,9 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
         return jdbcTemplate;
     }
 
-    @Override
-    public void initScheme() throws PersistenceException {
-        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+    @PostConstruct
+    protected void initScheme() throws PersistenceException {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
                 + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
                 + USER_ID + " INTEGER NOT NULL,"
                 + NAME + " VARCHAR(" + super.getNameLimit() + ") NOT NULL ,"
@@ -78,7 +79,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
                 + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
                 " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
 
-        getTemplate().execute(createTable, Collections.EMPTY_MAP, null);
+        getTemplate().update(createTable, Collections.EMPTY_MAP);
     }
 
     @Override

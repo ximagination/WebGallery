@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-  http://www.springframework.org/schema/beans/spring-beans.xsd">
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <import resource="classpath*:spring-persistence-config.xml"/>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean
             id="autentificationService"
@@ -18,5 +23,17 @@
         <property name="imageDAO" ref="imageDAO"/>
         <property name="fileManager" ref="fileManager"/>
     </bean>
+
+    <beans profile="raw,template">
+        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="source"/>
+        </bean>
+    </beans>
+
+    <beans profile="hibernate">
+        <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+            <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+    </beans>
 
 </beans>

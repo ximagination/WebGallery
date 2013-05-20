@@ -19,6 +19,17 @@ public class Image implements Serializable {
     private String name;
     private String comment;
 
+    // ONLY FOR HIBERNATE
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public int getId() {
         return id;
     }

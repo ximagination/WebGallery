@@ -9,6 +9,7 @@ import persistence.exception.*;
 import persistence.struct.User;
 import persistence.utils.DatabaseUtils;
 
+import javax.annotation.PostConstruct;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,30 +48,28 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     @Autowired
     private Connector connector;
 
-    @Override
-    public void initScheme() throws PersistenceException {
+    @PostConstruct
+    protected void initScheme() throws PersistenceException {
         Connection c = getConnection();
         Statement stat = null;
 
-        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
                 + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
                 + LOGIN + " VARCHAR(" + super.getLoginLimit() + ") NOT NULL UNIQUE,"
                 + PASSWORD + " VARCHAR(" + super.getPasswordLimit() + ") NOT NULL)";
 
         try {
-            try {
-                stat = c.createStatement();
+            stat = c.createStatement();
 
-                /*
-                Create table or throw
-                 */
-                stat.execute(createTable);
-            } catch (SQLException e) {
+            /*
+            Create table or throw
+            */
+            stat.execute(createTable);
+        } catch (SQLException e) {
                 /*
                 User invoke method create() multiple times. Table already exists.
                  */
-                throw new TableAlreadyExistsException(e);
-            }
+            throw new TableAlreadyExistsException(e);
         } finally {
             DatabaseUtils.closeQuietly(stat);
             DatabaseUtils.closeQuietly(c);
@@ -287,5 +286,4 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     private Connection getConnection() {
         return connector.newConnection();
     }
-
 }

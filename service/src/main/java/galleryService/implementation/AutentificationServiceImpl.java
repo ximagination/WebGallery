@@ -5,6 +5,7 @@ import galleryService.exception.LoginNotFoundException;
 import galleryService.interfaces.AutentificationService;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import persistence.dao.interfaces.UserDAO;
 import persistence.exception.ValidationException;
 import persistence.struct.User;
@@ -34,6 +35,7 @@ public class AutentificationServiceImpl implements AutentificationService {
      * @throws ValidationException
      * @throws RuntimeException
      */
+    @Transactional
     public User register(String login, String password) throws ValidationException {
         User user = new User();
 

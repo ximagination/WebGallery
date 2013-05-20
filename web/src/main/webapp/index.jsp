@@ -12,17 +12,6 @@
 </head>
 <body>
 
-<c:if test="${sessionScope.warning != null}">
-    style="width: 400px"
-    <span
-            class="label label-warning">
-            Authentication failed because
-            <c:out
-                    value="${sessionScope.warning}">
-            </c:out>
-    </span>
-</c:if>
-
 <div class="navbar navbar-inverse">
     <div class="navbar-inner">
         <div class="container">
@@ -40,6 +29,16 @@
 
                     <f:errors cssClass="label label-warning" path="login"/>
                     <f:errors cssClass="label label-warning" path="password"/>
+
+                    <c:if test="${sessionScope.warning != null}">
+                    <span
+                            class="label label-warning">
+                            Authentication failed because
+                            <c:out
+                                    value="${sessionScope.warning}">
+                            </c:out>
+                    </span>
+                    </c:if>
 
                     <f:input
                             path="login"
@@ -72,14 +71,13 @@
     </div>
 </div>
 
-<c:if test="${sessionScope.user != null}">
+<c:if test="${sessionScope.user != null and warning == null}">
     <form action="Logout" method="post" accept-charset="UTF-8">
         <span style="width: 200px" class="label label-success">Success authenticated <c:out
                 value="${sessionScope.user.login}"/> </span>
         <button type="submit" class="btn">Log out</button>
     </form>
 </c:if>
-
 
 <c:if test="${sessionScope.upload_message != null}">
     <span
@@ -90,7 +88,7 @@
     </span>
 </c:if>
 
-<c:if test="${sessionScope.user != null}">
+<c:if test="${sessionScope.user != null and warning == null}">
     <form
             class="form-horizontal"
             action="ImageUpload"

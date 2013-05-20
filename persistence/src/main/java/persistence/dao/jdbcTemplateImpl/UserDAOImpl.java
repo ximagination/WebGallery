@@ -16,6 +16,7 @@ import persistence.exception.RecordNotFoundException;
 import persistence.struct.User;
 import persistence.utils.DatabaseUtils;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -66,14 +67,14 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
         return jdbcTemplate;
     }
 
-    @Override
-    public void initScheme() throws PersistenceException {
-        String createTable = "CREATE TABLE " + TABLE_NAME + "("
+    @PostConstruct
+    protected void initScheme() throws PersistenceException {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
                 + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
                 + LOGIN + " VARCHAR(" + super.getLoginLimit() + ") NOT NULL UNIQUE,"
                 + PASSWORD + " VARCHAR(" + super.getPasswordLimit() + ") NOT NULL)";
 
-        getTemplate().execute(createTable, Collections.EMPTY_MAP, null);
+        getTemplate().update(createTable, Collections.EMPTY_MAP);
     }
 
     @Override
