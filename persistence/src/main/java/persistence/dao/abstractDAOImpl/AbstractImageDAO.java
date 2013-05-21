@@ -6,6 +6,8 @@ import persistence.exception.*;
 import persistence.struct.Image;
 import persistence.utils.ValidationUtils;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: agnidash
@@ -21,6 +23,9 @@ abstract public class AbstractImageDAO implements ImageDAO {
     @Value(value = "${persistence.dao.Image.commentLimit}")
     private int commentLimit;
 
+    @Value(value = "${persistence.dao.Image.orderColumn}")
+    private String orderColumn;
+
     protected abstract void insertImpl(Image image) throws ValidationException;
 
     protected abstract int updateImpl(Image image) throws ValidationException;
@@ -29,12 +34,18 @@ abstract public class AbstractImageDAO implements ImageDAO {
 
     protected abstract Image fetchByPrimaryImpl(Integer id);
 
+    protected abstract List<Image> fetchWithOffsetImpl(int offset, int limit);
+
     protected int getNameLimit() {
         return nameLimit;
     }
 
     protected int getCommentLimit() {
         return commentLimit;
+    }
+
+    protected String getOrderColumn() {
+        return orderColumn;
     }
 
     public void insert(Image image) throws ValidationException {
@@ -69,6 +80,14 @@ abstract public class AbstractImageDAO implements ImageDAO {
         return fetchByPrimaryImpl(id);
     }
 
+    @Override
+    public List<Image> fetchWithOffset(int offset, int limit) throws ValidationException {
+        checkPositive(offset, "offset");
+        checkPositive(limit, "limit");
+
+        return fetchWithOffsetImpl(offset, limit);
+    }
+
     private void validatePrimary(Integer id) throws IncorrectPrimaryKeyException {
         ValidationUtils.checkPrimary(id);
     }
@@ -90,6 +109,12 @@ abstract public class AbstractImageDAO implements ImageDAO {
             if (comment.length() > commentLimit) {
                 throw new ToLongFieldException("Field photo comment is too long. Max size of filed is " + commentLimit, commentLimit);
             }
+        }
+    }
+
+    private void checkPositive(int value, String paramName) throws IncorrectValueException {
+        if (value < 0) {
+            throw new IncorrectValueException("Param " + paramName + " with value <= 0 is incorrect. Current value " + value);
         }
     }
 }

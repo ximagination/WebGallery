@@ -8,7 +8,6 @@
   http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <import resource="classpath*:spring-persistence-config.xml"/>
-
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean

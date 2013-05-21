@@ -10,6 +10,17 @@
 
     <mvc:annotation-driven/>
 
+    <bean id="persistenceProperties"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath*:persistence.properties</value>
+                <value>classpath*:service.properties</value>
+                <value>classpath*:web.properties</value>
+            </list>
+        </property>
+    </bean>
+
     <import resource="classpath*:spring-persistence-config.xml"/>
     <import resource="classpath*:spring-service-config.xml"/>
 
@@ -21,6 +32,9 @@
         <property name="autentificationService" ref="autentificationService"/>
     </bean>
     <bean class="web.servlets.LogoutController"/>
+    <bean class="web.servlets.GalleryController">
+        <property name="autentificationService" ref="imageService"/>
+    </bean>
 
     <!--
        Spring util classes

@@ -20,8 +20,6 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     @Autowired
     private SessionFactory sessionFactory;
 
-    private static final String DELETE_HQL = "DELETE FROM user WHERE id=";
-
     private Session getSession() {
         return sessionFactory.openSession();
     }
@@ -40,30 +38,26 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
 
     @Override
     protected int deleteImpl(Integer id) {
-        return HibernateUtils.getCountOfQueryUpdate(getSession(), DELETE_HQL + id);
+        return HibernateUtils.delete(getSession(), id);
     }
 
     @Override
     public List<User> fetch() {
-        return HibernateUtils.getAll(getSession(), User.class);
+        return getSession().createCriteria(User.class).list();
     }
 
     @Override
     protected User fetchByPrimaryImpl(Integer id) {
-        return HibernateUtils.getByPrimary(getSession(), User.class, id);
+        return (User) getSession().get(User.class, id);
     }
 
     @Override
     protected User fetchByLoginImpl(String login) {
         Session mSession = getSession();
-        try {
-            Criteria criteria = mSession.createCriteria(User.class);
-            criteria.add(Restrictions.eq("login", login));
-            criteria.setMaxResults(1);
+        Criteria criteria = mSession.createCriteria(User.class);
+        criteria.add(Restrictions.eq("login", login));
+        criteria.setMaxResults(1);
 
-            return (User) criteria.uniqueResult();
-        } finally {
-            mSession.close();
-        }
+        return (User) criteria.uniqueResult();
     }
 }

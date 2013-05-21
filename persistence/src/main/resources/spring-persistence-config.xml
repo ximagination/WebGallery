@@ -9,11 +9,6 @@
 
     <context:annotation-config/>
 
-    <bean id="applicationProperties"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="classpath:persistence.properties"/>
-    </bean>
-
     <bean id="source" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <constructor-arg type="java.lang.String" value="${persistence.jdbc.url}"/>
         <constructor-arg type="java.lang.String" value="${persistence.jdbc.user}"/>

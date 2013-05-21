@@ -50,6 +50,9 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     private static final String BY_PRIMARY = "SELECT * FROM " + TABLE_NAME
             + " WHERE " + ID + "=?";
 
+    private static final String COUNT = "SELECT COUNT(*) FROM " + TABLE_NAME;
+
+
     @Autowired
     private Connector connector;
 
@@ -63,7 +66,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
                 + USER_ID + " INTEGER NOT NULL,"
                 + NAME + " VARCHAR(" + super.getNameLimit() + ") NOT NULL ,"
                 + COMMENT + " VARCHAR(" + super.getCommentLimit() + ") NOT NULL DEFAULT '',"
-                + TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
+                + TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 " FOREIGN KEY(" + USER_ID + ") REFERENCES " + UserDAOImpl.TABLE_NAME + "(" + UserDAOImpl.ID + "))";
 
         try {
@@ -231,6 +234,71 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
             if (rs.next()) {
                 result = readImageFromResultSet(rs);
+            }
+
+            return result;
+        } catch (SQLException e) {
+            /*
+            Unknown exception. Must not be occurs.
+             */
+            throw new PersistenceException(e);
+
+        } finally {
+            DatabaseUtils.closeQuietly(rs);
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+    @Override
+    public int getCount() {
+        Connection c = getConnection();
+        Statement stat = null;
+        ResultSet rs = null;
+
+        try {
+            stat = c.createStatement();
+
+            rs = stat.executeQuery(COUNT);
+
+            rs.first();
+
+            return rs.getInt(1);
+
+        } catch (SQLException e) {
+            /*
+            Unknown exception. Must not be occurs.
+             */
+            throw new PersistenceException(e);
+
+        } finally {
+            DatabaseUtils.closeQuietly(rs);
+            DatabaseUtils.closeQuietly(stat);
+            DatabaseUtils.closeQuietly(c);
+        }
+    }
+
+    @Override
+    protected List<Image> fetchWithOffsetImpl(int offset, int limit) {
+        Connection c = getConnection();
+        PreparedStatement stat = null;
+        ResultSet rs = null;
+
+        String fetchWithOffset = "SELECT * FROM " + TABLE_NAME
+                + " ORDER BY " + getOrderColumn() + " LIMIT ? OFFSET ?";
+
+        try {
+            stat = c.prepareStatement(fetchWithOffset);
+
+            stat.setInt(1, limit);
+            stat.setInt(2, offset);
+
+            rs = stat.executeQuery();
+
+            List<Image> result = new ArrayList<>();
+
+            while (rs.next()) {
+                result.add(readImageFromResultSet(rs));
             }
 
             return result;

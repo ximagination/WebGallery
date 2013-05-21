@@ -12,11 +12,23 @@
 </head>
 <body>
 
+<c:set var="canShow" value="${sessionScope.user != null and warning == null}"/>
+<c:set var="isUpload" value="${warning == null}"/>
+
 <div class="navbar navbar-inverse">
     <div class="navbar-inner">
         <div class="container">
 
             <a class="brand" href="#">WebGallery</a>
+
+            <c:if test="${canShow}">
+                <ul class="nav nav-pills">
+                    <li class="active">
+                        <a href="/Login">Upload</a>
+                    </li>
+                    <li><a href="/Gallery">Gallery</a></li>
+                </ul>
+            </c:if>
 
             <div class="nav-collapse collapse">
 
@@ -40,44 +52,48 @@
                     </span>
                     </c:if>
 
-                    <f:input
-                            path="login"
-                            class="input"
-                            type="text"
-                            placeholder="Login"
-                            maxlength="32"/>
+                    <c:if test="${!canShow}">
+                        <f:input
+                                path="login"
+                                class="input"
+                                type="text"
+                                placeholder="Login"
+                                maxlength="32"/>
 
-                    <f:input
-                            path="password"
-                            type="password"
-                            placeholder="Password"
-                            maxlength="32"/>
+                        <f:input
+                                path="password"
+                                type="password"
+                                placeholder="Password"
+                                maxlength="32"/>
 
-                    <button
-                            class="btn"
-                            type="submit"
-                            name="autentification">Autentificate
-                    </button>
+                        <button
+                                class="btn"
+                                type="submit"
+                                name="autentification">Autentificate
+                        </button>
 
-                    <button
-                            class="btn"
-                            type="submit"
-                            name="registration">Register
-                    </button>
+                        <button
+                                class="btn"
+                                type="submit"
+                                name="registration">Register
+                        </button>
+                    </c:if>
                 </f:form>
+
+                <c:if test="${canShow}">
+                    <form
+                            class="navbar-form pull-right"
+                            action="Logout"
+                            method="post"
+                            accept-charset="UTF-8">
+                        <button type="submit" class="btn">Log out</button>
+                    </form>
+                </c:if>
 
             </div>
         </div>
     </div>
 </div>
-
-<c:if test="${sessionScope.user != null and warning == null}">
-    <form action="Logout" method="post" accept-charset="UTF-8">
-        <span style="width: 200px" class="label label-success">Success authenticated <c:out
-                value="${sessionScope.user.login}"/> </span>
-        <button type="submit" class="btn">Log out</button>
-    </form>
-</c:if>
 
 <c:if test="${sessionScope.upload_message != null}">
     <span
@@ -88,7 +104,7 @@
     </span>
 </c:if>
 
-<c:if test="${sessionScope.user != null and warning == null}">
+<c:if test="${canShow}">
     <form
             class="form-horizontal"
             action="ImageUpload"

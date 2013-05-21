@@ -6,7 +6,7 @@ package persistence.exception;
  * Date: 4/18/13
  * Time: 5:12 PM
  */
-public class IncorrectPrimaryKeyException extends ValidationException {
+public class IncorrectPrimaryKeyException extends IncorrectValueException {
 
     public IncorrectPrimaryKeyException(String message) {
         super(message);
