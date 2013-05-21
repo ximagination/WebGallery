@@ -1,5 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="s" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -13,7 +15,6 @@
 <body>
 
 <c:set var="canShow" value="${sessionScope.user != null and warning == null}"/>
-<c:set var="isUpload" value="${warning == null}"/>
 
 <div class="navbar navbar-inverse">
     <div class="navbar-inner">
@@ -23,10 +24,10 @@
 
             <c:if test="${canShow}">
                 <ul class="nav nav-pills">
+                    <li><a href="/Login">Upload</a></li>
                     <li class="active">
-                        <a href="/Login">Upload</a>
+                        <a href="/Gallery">Gallery</a>
                     </li>
-                    <li><a href="/Gallery">Gallery</a></li>
                 </ul>
             </c:if>
 
@@ -95,71 +96,44 @@
     </div>
 </div>
 
-<c:if test="${sessionScope.upload_message != null}">
-    <span
-            class="label label-warning">
-            <c:out
-                    value="${sessionScope.upload_message}">
-            </c:out>
-    </span>
-</c:if>
+<c:forEach var="array" items="${images}">
+    <div class="row-fluid">
+        <c:forEach var="o" items="${array}">
+            <c:if test="${!empty o}">
+                <div class="span4">
+                    <h2>${o.name}</h2>
 
-<c:if test="${canShow}">
-    <form
-            class="form-horizontal"
-            action="ImageUpload"
-            method="post"
-            enctype="multipart/form-data"
-            accept-charset="UTF-8">
+                    <div class="row" style="margin:10px">
+                        <div class="span16">
+                            <ul class="media-grid">
+                                <a href="/Gallery/${o.id}"><img src="/Gallery/${o.id}" alt=""/></a>
+                            </ul>
+                        </div>
+                    </div>
 
-        <div class="control-group">
-            <label class="control-label" for="name">Name</label>
+                    <p><strong>Comment :</strong> ${o.comment}</p>
 
-            <div class="controls">
-                <input
-                        name="name"
-                        type="text"
-                        id="name"
-                        placeholder="Name">
-            </div>
-        </div>
+                    <p><strong>Pub Date :</strong> ${o.timestamp}</p>
+                </div>
+            </c:if>
+        </c:forEach>
+    </div>
+</c:forEach>
 
-        <div class="control-group">
-            <label class="control-label" for="comment">Comment</label>
+<c:if test="${countOfPages > 1}">
+    <c:set var="numberOfPaginatorPage" value="1"/>
 
-            <div class="controls">
-                <input
-                        name="comment"
-                        type="text"
-                        id="comment"
-                        placeholder="Comment">
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label" for="path">Path to file</label>
-
-            <div class="controls">
-                <input
-                        name="path"
-                        type="file"
-                        accept="image/png, image/jpeg"
-                        id="path"
-                        placeholder="Path to file">
-            </div>
-        </div>
-
-        <div class="control-group">
-            <div class="controls">
-                <button
-                        class="btn"
-                        type="submit"
-                        name="upload">Send
-                </button>
-            </div>
-        </div>
-
-    </form>
+    <div class="pagination pagination-centered">
+        <ul>
+            <li class="disabled"><a href="#">&laquo;</a></li>
+            <c:forEach begin="1" end="${countOfPages}">
+                <li class="active"><a href="/Gallery?pageId=<c:out
+                        value="${numberOfPaginatorPage-1}"></c:out>">${numberOfPaginatorPage}</a></li>
+                <c:set var="numberOfPaginatorPage" value="${numberOfPaginatorPage+1}"/>
+            </c:forEach>
+            <li class="disabled"><a href="#">&raquo;</a></li>
+        </ul>
+    </div>
 </c:if>
 
 </body>

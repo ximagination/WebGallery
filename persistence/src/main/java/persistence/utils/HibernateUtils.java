@@ -1,10 +1,10 @@
 package persistence.utils;
 
+import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
-
-import java.io.Serializable;
-import java.util.List;
+import org.hibernate.criterion.Projections;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,107 +14,52 @@ import java.util.List;
  */
 public class HibernateUtils {
 
+    //Logger
+    private static final Logger LOGGER = Logger.getLogger(HibernateUtils.class);
+
     private HibernateUtils() {
         // not visible
     }
 
     public static int insert(Session session, Object objectForInsert) {
-        checkSession(session);
-        checkTransaction(session);
-        notNull(objectForInsert, "objectForInsert");
-
-        int resultOfInsert = 1;
-
         try {
             session.save(objectForInsert);
+            return 1;
         } catch (HibernateException e) {
-            log(e);
-
-            resultOfInsert = 0;
-        } finally {
-            session.close();
+            LOGGER.error("Insert Exception. Record can't be inserted for object=" + objectForInsert
+                    + " for class " + objectForInsert.getClass() + " on session " + session
+                    + ". Method insert return 0.", e);
+            return 0;
         }
-
-        return resultOfInsert;
     }
 
     public static int update(Session session, Object objectForUpdate) {
-        checkSession(session);
-        checkTransaction(session);
-        notNull(objectForUpdate, "objectForUpdate");
-
-        int resultOfUpdate = 1;
-
         try {
             session.update(objectForUpdate);
+            return 1;
         } catch (HibernateException e) {
-            log(e);
-
-            resultOfUpdate = 0;
-        } finally {
-            session.close();
+            LOGGER.error("Update Exception. Record can't be updated for object=" + objectForUpdate
+                    + " for class " + objectForUpdate.getClass() + " on session " + session
+                    + ". Method update return 0.", e);
+            return 0;
         }
-
-        return resultOfUpdate;
     }
 
-
-    public static <T> List<T> getAll(Session session, Class<T> cls) {
-        checkSession(session);
-        notNull(cls, "cls");
-
+    public static <T> int delete(Session session, Class<T> cls, int id) {
         try {
-            return session.createCriteria(cls).list();
-        } finally {
-            session.close();
+            session.delete(session.get(cls, id));
+            return 1;
+        } catch (HibernateException e) {
+            LOGGER.error("Delete Exception. Record not found by id=" + id
+                    + " for class " + cls + " on session " + session
+                    + ". Method delete return 0.", e);
+            return 0;
         }
     }
 
-    public static <T> T getByPrimary(Session session, Class<T> cls, Serializable id) {
-        checkSession(session);
-        notNull(cls, "cls");
-        notNull(id, "id");
-
-        try {
-            return (T) session.get(cls, id);
-        } finally {
-            session.close();
-        }
-    }
-
-    public static int getCountOfQueryUpdate(Session session, String hql) {
-        checkSession(session);
-        notNull(hql, "id");
-
-        try {
-            return session.createQuery(hql).executeUpdate();
-        } finally {
-            session.close();
-        }
-    }
-
-    private static void log(HibernateException e) {
-        e.printStackTrace();
-    }
-
-    private static void checkTransaction(Session session) {
-        if (!session.getTransaction().isActive()) {
-            throw new IllegalArgumentException("Transaction not available");
-        }
-    }
-
-    private static <T> void notNull(Object o, String name) {
-        if (o == null) {
-            throw new IllegalArgumentException("Input param " + name + " must not be null");
-        }
-    }
-
-    private static void checkSession(Session session) {
-        if (session == null) {
-            throw new IllegalArgumentException("Session must not be null");
-        }
-        if (!session.isOpen()) {
-            throw new IllegalArgumentException("Session is closed");
-        }
+    public static <T> Number getCount(Session session, Class<T> imageClass) {
+        Criteria criteria = session.createCriteria(imageClass);
+        criteria.setProjection(Projections.rowCount());
+        return (Number) criteria.uniqueResult();
     }
 }

@@ -63,7 +63,7 @@ public class AuthenticationFilter implements Filter {
     }
 
     private void authPage(HttpServletResponse req) throws IOException {
-        req.sendRedirect("/");
+        req.sendRedirect("/Login");
     }
 
     private boolean isPublicPage(String path) {
