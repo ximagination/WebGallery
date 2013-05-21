@@ -14,7 +14,6 @@ import web.pojo.Login;
 import web.utils.SessionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -50,7 +49,7 @@ public class ImageUploadController {
     }
 
     @RequestMapping(method = GET)
-    protected String doGet(HttpServletRequest in, HttpServletResponse out) {
+    public String doGet() {
         return "redirect:/Login";
     }
 

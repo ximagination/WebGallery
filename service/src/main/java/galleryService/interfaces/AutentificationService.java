@@ -11,8 +11,8 @@ import persistence.struct.User;
  */
 public interface AutentificationService {
 
-    public User register(String login, String password) throws ValidationException;
+    User register(String login, String password) throws ValidationException;
 
-    public User autentificate(String login, String password) throws ValidationException;
+    User autentificate(String login, String password) throws ValidationException;
 
 }

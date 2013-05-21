@@ -67,6 +67,20 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
         return jdbcTemplate;
     }
 
+    private static final RowMapper<User> USER_ROW_MAPPER = new RowMapper<User>() {
+
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+
+            user.setId(rs.getInt(ID));
+            user.setLogin(rs.getString(LOGIN));
+            user.setPassword(rs.getString(PASSWORD));
+
+            return user;
+        }
+    };
+
     @PostConstruct
     protected void initScheme() throws PersistenceException {
         String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
@@ -121,38 +135,16 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
 
     @Override
     public List<User> fetch() {
-        return getTemplate().query(FETCH, Collections.EMPTY_MAP, new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return readUserFromResultSet(rs);
-            }
-        });
+        return getTemplate().query(FETCH, Collections.EMPTY_MAP, USER_ROW_MAPPER);
     }
 
-    private static User readUserFromResultSet(ResultSet rs) throws SQLException {
-        User user = new User();
-
-        user.setId(rs.getInt(ID));
-        user.setLogin(rs.getString(LOGIN));
-        user.setPassword(rs.getString(PASSWORD));
-
-        return user;
-    }
 
     @Override
     protected User fetchByPrimaryImpl(Integer id) {
         Map<String, Object> params = new HashMap<>(1, 1F);
         params.put(ID, id);
 
-        RowMapper<User> rowMapper = new RowMapper<User>() {
-
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return readUserFromResultSet(rs);
-            }
-        };
-
-        return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_PRIMARY, params, rowMapper);
+        return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_PRIMARY, params, USER_ROW_MAPPER);
     }
 
     @Override
@@ -160,14 +152,6 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
         Map<String, Object> params = new HashMap<>(1, 1F);
         params.put(LOGIN, login);
 
-        RowMapper<User> rowMapper = new RowMapper<User>() {
-
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return readUserFromResultSet(rs);
-            }
-        };
-
-        return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_LOGIN, params, rowMapper);
+        return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_LOGIN, params, USER_ROW_MAPPER);
     }
 }

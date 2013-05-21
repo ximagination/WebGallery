@@ -42,7 +42,7 @@
         </init-param>
         <init-param>
             <param-name>public_pages</param-name>
-            <param-value>/Login , /Logout</param-value>
+            <param-value>/Login,/Logout,/Gallery</param-value>
         </init-param>
     </filter>
     <filter-mapping>
@@ -56,7 +56,7 @@
 
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>template</param-value>
+        <param-value>raw</param-value>
     </context-param>
     <context-param>
         <param-name>spring.profiles.default</param-name>

@@ -45,6 +45,11 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     static final String COMMENT = "comment";
     static final String TIMESTAMP = "timestamp";
 
+    // EXTRA BIND COLUMNS
+    static final String ORDER = "order";
+    static final String LIMIT = "limit";
+    static final String OFFSET = "offset";
+
     // SQL
     private static final String INSERT = "INSERT INTO " + TABLE_NAME + "("
             + USER_ID + ","
@@ -65,9 +70,31 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     private static final String BY_PRIMARY = "SELECT * FROM " + TABLE_NAME
             + " WHERE " + ID + "=:" + ID;
 
+    private static final String COUNT = "SELECT COUNT(*) FROM " + TABLE_NAME;
+
+    private static final String FETCH_WITH_OFFSET = "SELECT * FROM " + TABLE_NAME
+            + " ORDER BY :" + ORDER
+            + " LIMIT :" + LIMIT + " OFFSET :" + OFFSET;
+
     private NamedParameterJdbcOperations getTemplate() {
         return jdbcTemplate;
     }
+
+    private static final RowMapper<Image> IMAGE_ROW_MAPPER = new RowMapper<Image>() {
+
+        @Override
+        public Image mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Image image = new Image();
+
+            image.setId(rs.getInt(ID));
+            image.setUserId(rs.getInt(USER_ID));
+            image.setName(rs.getString(NAME));
+            image.setComment(rs.getString(COMMENT));
+            image.setTimestamp(rs.getTimestamp(TIMESTAMP));
+
+            return image;
+        }
+    };
 
     @PostConstruct
     protected void initScheme() throws PersistenceException {
@@ -128,12 +155,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     @Override
     public List<Image> fetch() {
-        return getTemplate().query(FETCH, Collections.EMPTY_MAP, new RowMapper<Image>() {
-            @Override
-            public Image mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return readImageFromResultSet(rs);
-            }
-        });
+        return getTemplate().query(FETCH, Collections.EMPTY_MAP, IMAGE_ROW_MAPPER);
     }
 
     @Override
@@ -141,26 +163,21 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
         Map<String, Object> params = new HashMap<>(1, 1F);
         params.put(ID, id);
 
-        RowMapper<Image> rowMapper = new RowMapper<Image>() {
-
-            @Override
-            public Image mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return readImageFromResultSet(rs);
-            }
-        };
-
-        return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_PRIMARY, params, rowMapper);
+        return DatabaseUtils.getSingleRowOrNull(getTemplate(), BY_PRIMARY, params, IMAGE_ROW_MAPPER);
     }
 
-    private static Image readImageFromResultSet(ResultSet rs) throws SQLException {
-        Image image = new Image();
+    @Override
+    public int getCount() {
+        return getTemplate().queryForInt(COUNT, Collections.EMPTY_MAP);
+    }
 
-        image.setId(rs.getInt(ID));
-        image.setUserId(rs.getInt(USER_ID));
-        image.setName(rs.getString(NAME));
-        image.setComment(rs.getString(COMMENT));
-        image.setTimestamp(rs.getTimestamp(TIMESTAMP));
+    @Override
+    protected List<Image> fetchWithOffsetImpl(int offset, int limit) {
+        Map<String, Object> params = new HashMap<>(1, 1F);
+        params.put(ORDER, getOrderColumn());
+        params.put(LIMIT, limit);
+        params.put(OFFSET, offset);
 
-        return image;
+        return getTemplate().query(FETCH_WITH_OFFSET, params, IMAGE_ROW_MAPPER);
     }
 }

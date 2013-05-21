@@ -1,7 +1,9 @@
 package persistence.dao.hibernateImpl;
 
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import persistence.dao.abstractDAOImpl.AbstractImageDAO;
@@ -17,8 +19,6 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     @Autowired
     private SessionFactory sessionFactory;
-
-    private static final String DELETE_HQL = "DELETE FROM image WHERE id=";
 
     private Session getSession() {
         return sessionFactory.openSession();
@@ -38,16 +38,33 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     @Override
     protected int deleteImpl(Integer id) {
-        return HibernateUtils.getCountOfQueryUpdate(getSession(), DELETE_HQL + id);
+        return HibernateUtils.delete(getSession(), Image.class, id);
     }
 
     @Override
     public List<Image> fetch() {
-        return HibernateUtils.getAll(getSession(), Image.class);
+        return getSession().createCriteria(Image.class).list();
     }
 
     @Override
     protected Image fetchByPrimaryImpl(Integer id) {
-        return HibernateUtils.getByPrimary(getSession(), Image.class, id);
+        return (Image) getSession().get(Image.class, id);
+    }
+
+    @Override
+    public int getCount() {
+        return HibernateUtils.getCount(getSession(), Image.class).intValue();
+    }
+
+    @Override
+    protected List<Image> fetchWithOffsetImpl(int offset, int limit) {
+        Session session = getSession();
+
+        Criteria criteria = session.createCriteria(Image.class);
+        criteria.addOrder(Order.asc(getOrderColumn()));
+        criteria.setMaxResults(limit);
+        criteria.setFirstResult(offset);
+
+        return criteria.list();
     }
 }

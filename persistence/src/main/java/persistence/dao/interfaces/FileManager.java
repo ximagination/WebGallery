@@ -11,8 +11,8 @@ import java.io.IOException;
  */
 public interface FileManager {
 
-    public File getFile(int id);
+    File getFile(int id);
 
-    public void createFile(byte[] image, int id) throws IOException;
+    void createFile(byte[] image, int id) throws IOException;
 
 }
