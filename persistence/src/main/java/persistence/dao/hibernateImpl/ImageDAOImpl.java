@@ -38,7 +38,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     @Override
     protected int deleteImpl(Integer id) {
-        return HibernateUtils.delete(getSession(), id);
+        return HibernateUtils.delete(getSession(), Image.class, id);
     }
 
     @Override

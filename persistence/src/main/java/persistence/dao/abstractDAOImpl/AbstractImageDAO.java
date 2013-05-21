@@ -82,8 +82,8 @@ abstract public class AbstractImageDAO implements ImageDAO {
 
     @Override
     public List<Image> fetchWithOffset(int offset, int limit) throws ValidationException {
-        checkPositive(offset, "offset");
-        checkPositive(limit, "limit");
+        checkNonNegative(offset, "offset");
+        checkNonNegative(limit, "limit");
 
         return fetchWithOffsetImpl(offset, limit);
     }
@@ -112,9 +112,9 @@ abstract public class AbstractImageDAO implements ImageDAO {
         }
     }
 
-    private void checkPositive(int value, String paramName) throws IncorrectValueException {
+    private void checkNonNegative(int value, String paramName) throws IncorrectValueException {
         if (value < 0) {
-            throw new IncorrectValueException("Param " + paramName + " with value <= 0 is incorrect. Current value " + value);
+            throw new IncorrectValueException("Param " + paramName + " with value < 0 is incorrect. Current value " + value);
         }
     }
 }

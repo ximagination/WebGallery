@@ -38,7 +38,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
 
     @Override
     protected int deleteImpl(Integer id) {
-        return HibernateUtils.delete(getSession(), id);
+        return HibernateUtils.delete(getSession(), User.class, id);
     }
 
     @Override

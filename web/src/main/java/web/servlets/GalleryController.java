@@ -15,6 +15,7 @@ import persistence.struct.Image;
 import web.pojo.Login;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -47,29 +48,19 @@ public class GalleryController {
     }
 
     @RequestMapping(method = GET, value = "/{id}")
-    public void getImage(@PathVariable int id, HttpServletResponse response) {
+    public void getImage(@PathVariable int id, HttpServletResponse response) throws IOException, ValidationException {
         InputStream is = null;
         try {
             is = imageService.getImageById(id);
             IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-
         } finally {
             IOUtils.closeQuietly(is);
         }
     }
 
     @RequestMapping(method = {GET, POST})
-    public String getPage(Model model, @RequestParam(value = "id", required = false, defaultValue = "0") int id) {
-        ImageInfoHolder imageInfo;
-        try {
-            imageInfo = imageService.getImages(id * imageCountInPage, imageCountInPage);
-        } catch (ValidationException e) {
-            throw new RuntimeException(e);
-        }
-
+    public String getPage(Model model, @RequestParam(value = "pageId", required = false, defaultValue = "0") int pageId) throws ValidationException {
+        ImageInfoHolder imageInfo = imageService.getImages(pageId * imageCountInPage, imageCountInPage);
         model.addAttribute("login", new Login());
         model.addAttribute("images", split(imageInfo.getList(), imageCountInRow));
         model.addAttribute("countOfPages", Math.ceil(imageInfo.getCount() / (float) imageCountInPage));
