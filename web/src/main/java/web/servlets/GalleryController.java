@@ -47,11 +47,18 @@ public class GalleryController {
         this.imageService = imageService;
     }
 
+    public enum ImageType {
+        ORIGINAL, PREVIEW
+    }
+
     @RequestMapping(method = GET, value = "/{id}")
-    public void getImage(@PathVariable int id, HttpServletResponse response) throws IOException, ValidationException {
+    public void getImage(@PathVariable int id,
+                         @RequestParam(value = "type", required = false, defaultValue = "ORIGINAL")
+                         ImageType type,
+                         HttpServletResponse response) throws IOException, ValidationException {
         InputStream is = null;
         try {
-            is = imageService.getImageById(id);
+            is = imageService.getImageById(id, type == ImageType.ORIGINAL);
             IOUtils.copy(is, response.getOutputStream());
         } finally {
             IOUtils.closeQuietly(is);
@@ -59,7 +66,9 @@ public class GalleryController {
     }
 
     @RequestMapping(method = {GET, POST})
-    public String getPage(Model model, @RequestParam(value = "pageId", required = false, defaultValue = "0") int pageId) throws ValidationException {
+    public String getPage(Model model,
+                          @RequestParam(value = "pageId", required = false, defaultValue = "0")
+                          int pageId) throws ValidationException {
         ImageInfoHolder imageInfo = imageService.getImages(pageId * imageCountInPage, imageCountInPage);
         model.addAttribute("login", new Login());
         model.addAttribute("images", split(imageInfo.getList(), imageCountInRow));
