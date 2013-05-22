@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -107,6 +108,16 @@ public class ImageServiceImpl implements ImageService {
         // This thread register image in cache
         cache.put(id, NONE);
 
+        try {
+            addTask(id, data);
+        } catch (RejectedExecutionException e) {
+            LOGGER.error("Task for creating preview image by id=" + id + " was rejected. ", e);
+
+            cache.remove(id);
+        }
+    }
+
+    private void addTask(final int id, final byte[] data) {
         executorService.execute(new Runnable() {
 
             @Override
