@@ -108,9 +108,9 @@ public class ImageServiceImpl implements ImageService {
         cache.put(id, NONE);
 
         executorService.execute(new Runnable() {
+
             @Override
             public void run() {
-
                 try {
                     //expensive operation
                     createPreviewCopy(id, data);
