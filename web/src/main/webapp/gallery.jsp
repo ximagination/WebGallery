@@ -106,7 +106,9 @@
                     <div class="row" style="margin:10px">
                         <div class="span16">
                             <ul class="media-grid">
-                                <a href="/Gallery/${o.id}"><img src="/Gallery/${o.id}" alt=""/></a>
+                                <a href="/Gallery/${o.id}?type=ORIGINAL">
+                                    <img src="/Gallery/${o.id}?type=PREVIEW" alt=""/>
+                                </a>
                             </ul>
                         </div>
                     </div>

@@ -18,28 +18,34 @@ import java.io.*;
 @Repository
 public class FileManagerImpl implements FileManager {
 
-    @Value(value = "${persistence.fileManager.pathToImages}")
-    private File path;
+    @Value(value = "${persistence.fileManager.pathToOriginalImages}")
+    private File pathToOriginalImages;
+
+    @Value(value = "${persistence.fileManager.pathToPreviewImages}")
+    private File pathToPreviewImages;
 
     @PostConstruct
     public void init() {
-        if (!path.exists()) {
-            boolean isDirectoryCreated = path.mkdirs();
+        cretePathOrThrow(pathToOriginalImages, "ORIGINAL");
+        cretePathOrThrow(pathToPreviewImages, "SCALED");
+    }
 
-            if (!isDirectoryCreated) {
-                throw new PersistenceException("File system can't create directory by path " + path);
-            }
+    private void cretePathOrThrow(File path, String type) {
+        if (!path.exists() && !path.mkdirs()) {
+            throw new PersistenceException("File system can't create directory " + path + " for " + type + " images");
         }
     }
 
     @Override
-    public File getFile(int id) {
+    public File getFile(int id, boolean isOriginal) {
+        File path = isOriginal ? pathToOriginalImages : pathToPreviewImages;
+
         return new File(path, Integer.toString(id));
     }
 
     @Override
-    public void createFile(byte[] image, int id) throws IOException {
-        File file = getFile(id);
+    public void createFile(byte[] image, int id, boolean isOriginal) throws IOException {
+        File file = getFile(id, isOriginal);
 
         OutputStream fos = null;
         try {
@@ -64,4 +70,6 @@ public class FileManagerImpl implements FileManager {
             IOUtils.closeQuietly(fos);
         }
     }
+
+
 }

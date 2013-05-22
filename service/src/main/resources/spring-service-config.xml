@@ -16,11 +16,26 @@
         <property name="userDAO" ref="userDAO"/>
     </bean>
 
+    <bean id="cache" class="java.util.concurrent.ConcurrentHashMap"/>
+    <bean id="blockingQueue" class="java.util.concurrent.SynchronousQueue"/>
+
+    <bean
+            id="executor"
+            class="java.util.concurrent.ThreadPoolExecutor">
+        <constructor-arg index="0" type="int" value="${service.minThreadCount}"/>
+        <constructor-arg index="1" type="int" value="${service.maxThreadCount}"/>
+        <constructor-arg index="2" type="long" value="${service.keepAliveTime}"/>
+        <constructor-arg index="3" type="java.util.concurrent.TimeUnit" value="${service.unit}"/>
+        <constructor-arg index="4" ref="blockingQueue"/>
+    </bean>
+
     <bean
             id="imageService"
             class="galleryService.implementation.ImageServiceImpl">
         <property name="imageDAO" ref="imageDAO"/>
         <property name="fileManager" ref="fileManager"/>
+        <property name="executorService" ref="executor"/>
+        <property name="cache" ref="cache"/>
     </bean>
 
     <beans profile="raw,template">
