@@ -17,7 +17,9 @@ public interface ImageService {
 
     void addImage(User user, String name, String comment, byte[] data) throws ValidationException, IOException;
 
-    InputStream getImageById(int id) throws ValidationException, IOException;
+    InputStream getImageById(int id, boolean isOriginal) throws ValidationException, IOException;
 
     ImageInfoHolder getImages(int offset, int limit) throws ValidationException;
+
+    void createPreviewCopy(int id, byte[] originalBytes) throws IOException;
 }

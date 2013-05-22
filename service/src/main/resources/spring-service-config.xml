@@ -10,17 +10,19 @@
     <import resource="classpath*:spring-persistence-config.xml"/>
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <bean
-            id="autentificationService"
-            class="galleryService.implementation.AutentificationServiceImpl">
+    <bean id="autentificationService" class="galleryService.implementation.AutentificationServiceImpl">
         <property name="userDAO" ref="userDAO"/>
     </bean>
 
-    <bean
-            id="imageService"
-            class="galleryService.implementation.ImageServiceImpl">
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newCachedThreadPool"/>
+
+    <bean id="imageService" class="galleryService.implementation.ImageServiceImpl">
         <property name="imageDAO" ref="imageDAO"/>
         <property name="fileManager" ref="fileManager"/>
+        <property name="executorService" ref="executor"/>
+        <property name="cache">
+            <bean class="java.util.concurrent.ConcurrentHashMap"/>
+        </property>
     </bean>
 
     <beans profile="raw,template">
