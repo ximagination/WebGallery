@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
 import persistence.dao.abstractDAOImpl.AbstractUserDAO;
-import persistence.dao.interfaces.UserDAO;
 import persistence.exception.*;
 import persistence.struct.User;
 import persistence.utils.DatabaseUtils;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
+public class UserDAOImpl extends AbstractUserDAO {
 
     // TABLE
     static final String TABLE_NAME = "user";

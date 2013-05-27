@@ -10,9 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import persistence.dao.abstractDAOImpl.AbstractImageDAO;
-import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.PersistenceException;
-import persistence.exception.RecordNotFoundException;
 import persistence.struct.Image;
 import persistence.utils.DatabaseUtils;
 
@@ -26,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
+public class ImageDAOImpl extends AbstractImageDAO {
 
     private NamedParameterJdbcOperations jdbcTemplate;
 
@@ -136,7 +134,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     }
 
     @Override
-    protected int updateImpl(Image image) throws RecordNotFoundException {
+    protected int updateImpl(Image image) {
         Map<String, Object> params = new HashMap<>(3, 1F);
         params.put(ID, image.getId());
         params.put(NAME, image.getName());
@@ -146,7 +144,7 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
     }
 
     @Override
-    protected int deleteImpl(Integer id) throws RecordNotFoundException {
+    protected int deleteImpl(Integer id) {
         Map<String, Object> params = new HashMap<>(1, 1F);
         params.put(ID, id);
 

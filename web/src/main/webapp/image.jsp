@@ -1,3 +1,5 @@
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -11,8 +13,72 @@
     <link type="text/css"
           href="/resources/css/bootstrap.css"
           media="all" rel="stylesheet">
+    <style type="text/css">
+
+        .size {
+            width: 95%;
+            height: 95%;
+            max-width: 1200px;
+            max-height: 900px;
+        }
+
+        .scroll {
+            height: 900px;
+            width: 600px;
+            border: 1px solid #ccc;
+            font: 16px/26px Georgia, Garamond, Serif;
+            overflow: auto;
+        }
+    </style>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+    <script type="text/javascript">
+
+        var date = new Date();
+
+        function init() {
+            fetch("");
+        }
+
+        function fetch(value) {
+            $.ajax({
+                type: "GET",
+                content: "application/json",
+                media: "application/json",
+                accept: "application/json",
+                url: "/Comment/all/${id}?date=" + value,
+                success: function (msg) {
+                    document.getElementById('scroll').innerHTML = msg;
+                    date = new Date();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus + " XMLHttpRequest " + XMLHttpRequest + " errorThrown " + errorThrown);
+                }
+            });
+        }
+
+        function submit(frm) {
+            var text = frm.comment.text;
+
+            $.ajax({
+                type: "POST",
+                content: "application/json",
+                media: "application/json",
+                accept: "application/json",
+                url: "/Comment",
+                data: text,
+                success: function (msg) {
+                    fetch(date);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus + " XMLHttpRequest " + XMLHttpRequest + " errorThrown " + errorThrown);
+                }
+            });
+        }
+
+    </script>
 </head>
-<body>
+<body onload="init();">
 
 <c:set var="canShow" value="${sessionScope.user != null and warning == null}"/>
 
@@ -96,50 +162,29 @@
     </div>
 </div>
 
-<c:forEach var="array" items="${images}">
+<div class="container-fluid">
     <div class="row-fluid">
-        <c:forEach var="o" items="${array}">
-            <c:if test="${!empty o}">
-                <div class="span4">
-                    <h2>${o.name}</h2>
+        <div class="span7">
+            <div class="size">
+                <img class="img-polaroid" src="/Gallery/${id}?type=ORIGINAL" alt=""/>
 
-                    <div class="row" style="margin:10px">
-                        <div class="span16">
-                            <ul class="media-grid">
-                                <a href="/Comment/${o.id}">
-                                    <img src="/Gallery/${o.id}?type=PREVIEW" alt=""/></a>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <p><strong>Comment :</strong> ${o.comment}</p>
-
-                    <p><strong>Pub Date :</strong> ${o.timestamp}</p>
-
-                    <a class="btn btn-primary btn-large" href="/Comment/${o.id}">
-                        <strong>Get more</strong>
-                    </a>
-                </div>
-            </c:if>
-        </c:forEach>
+                <form class="navbar-form pull-left"
+                      method="post"
+                      action="/Comment"
+                      accept-charset="UTF-8">
+                    <input id="mComment" style="width: 840px" name="comment" type="text" class="span2">
+                    <button onclick="submit(this.form);" class="btn">Add comment</button>
+                </form>
+                <button onclick="fetch(date);" class="btn">CHECK DATE</button>
+            </div>
+        </div>
+        <div class="span5">
+            <div id="scroll" class="scroll">
+                <%--body inserted by js--%>
+            </div>
+        </div>
     </div>
-</c:forEach>
-
-<c:if test="${countOfPages > 1}">
-    <c:set var="numberOfPaginatorPage" value="1"/>
-
-    <div class="pagination pagination-centered">
-        <ul>
-            <li class="disabled"><a href="#">&laquo;</a></li>
-            <c:forEach begin="1" end="${countOfPages}">
-                <li class="active"><a href="/Gallery?pageId=<c:out
-                        value="${numberOfPaginatorPage-1}"></c:out>">${numberOfPaginatorPage}</a></li>
-                <c:set var="numberOfPaginatorPage" value="${numberOfPaginatorPage+1}"/>
-            </c:forEach>
-            <li class="disabled"><a href="#">&raquo;</a></li>
-        </ul>
-    </div>
-</c:if>
+</div>
 
 </body>
 </html>

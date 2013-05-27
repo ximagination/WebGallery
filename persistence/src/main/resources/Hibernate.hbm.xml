@@ -43,4 +43,31 @@
 
         <many-to-one name="user" column="id" insert="false" update="false"/>
     </class>
+
+    <class name="persistence.struct.Comment" table="comment">
+
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+
+        <property name="userId" type="int">
+            <column name="userId" not-null="true"/>
+        </property>
+
+        <property name="imageId" type="int">
+            <column name="name" not-null="true" index="comment_imageId_index"/>
+        </property>
+
+        <property name="comment" type="java.lang.String">
+            <column name="comment" length="255" not-null="true" default=""/>
+        </property>
+
+        <property name="timestamp" type="java.util.Date">
+            <column name="timestamp" default="CURRENT_TIMESTAMP"/>
+        </property>
+
+        <many-to-one name="user" column="id" insert="false" update="false"/>
+        <many-to-one name="image" column="id" insert="false" update="false"/>
+    </class>
+
 </hibernate-mapping>

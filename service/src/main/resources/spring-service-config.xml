@@ -14,6 +14,10 @@
         <property name="userDAO" ref="userDAO"/>
     </bean>
 
+    <bean id="commentService" class="galleryService.implementation.CommentServiceImpl">
+        <property name="commentDAO" ref="commentDAO"/>
+    </bean>
+
     <bean id="executor" class="java.util.concurrent.Executors" factory-method="newCachedThreadPool"/>
 
     <bean id="imageService" class="galleryService.implementation.ImageServiceImpl">

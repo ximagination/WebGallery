@@ -22,16 +22,19 @@
     <beans profile="raw">
         <bean id="userDAO" class="persistence.dao.rawJdbcImpl.UserDAOImpl"/>
         <bean id="imageDAO" class="persistence.dao.rawJdbcImpl.ImageDAOImpl"/>
+        <bean id="commentDAO" class="persistence.dao.rawJdbcImpl.CommentDAOImpl"/>
     </beans>
 
     <beans profile="template">
         <bean id="userDAO" class="persistence.dao.jdbcTemplateImpl.UserDAOImpl"/>
         <bean id="imageDAO" class="persistence.dao.jdbcTemplateImpl.ImageDAOImpl"/>
+        <bean id="commentDAO" class="persistence.dao.jdbcTemplateImpl.CommentDAOImpl"/>
     </beans>
 
     <beans profile="hibernate">
         <bean id="userDAO" class="persistence.dao.hibernateImpl.UserDAOImpl"/>
         <bean id="imageDAO" class="persistence.dao.hibernateImpl.ImageDAOImpl"/>
+        <bean id="commentDAO" class="persistence.dao.hibernateImpl.CommentDAOImpl"/>
 
         <bean id="sessionFactory"
               class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">

@@ -10,9 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import persistence.dao.abstractDAOImpl.AbstractUserDAO;
-import persistence.dao.interfaces.UserDAO;
 import persistence.exception.PersistenceException;
-import persistence.exception.RecordNotFoundException;
 import persistence.struct.User;
 import persistence.utils.DatabaseUtils;
 
@@ -26,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
+public class UserDAOImpl extends AbstractUserDAO {
 
     private NamedParameterJdbcOperations jdbcTemplate;
 
@@ -82,7 +80,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     };
 
     @PostConstruct
-    protected void initScheme() throws PersistenceException {
+    protected void initScheme() {
         String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
                 + ID + " INTEGER PRIMARY KEY AUTO_INCREMENT,"
                 + LOGIN + " VARCHAR(" + super.getLoginLimit() + ") NOT NULL UNIQUE,"
@@ -117,7 +115,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     }
 
     @Override
-    protected int updateImpl(User user) throws RecordNotFoundException {
+    protected int updateImpl(User user) {
         Map<String, Object> params = new HashMap<>(2, 1F);
         params.put(ID, user.getId());
         params.put(PASSWORD, user.getPassword());
@@ -126,7 +124,7 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     }
 
     @Override
-    protected int deleteImpl(Integer id) throws RecordNotFoundException {
+    protected int deleteImpl(Integer id) {
         Map<String, Object> params = new HashMap<>(1, 1F);
         params.put(ID, id);
 
@@ -137,7 +135,6 @@ public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
     public List<User> fetch() {
         return getTemplate().query(FETCH, Collections.EMPTY_MAP, USER_ROW_MAPPER);
     }
-
 
     @Override
     protected User fetchByPrimaryImpl(Integer id) {

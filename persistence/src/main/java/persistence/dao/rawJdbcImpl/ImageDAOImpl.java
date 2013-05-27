@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import persistence.connectAndSource.Connector;
 import persistence.dao.abstractDAOImpl.AbstractImageDAO;
-import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.ForeignKeyConstraintException;
 import persistence.exception.PersistenceException;
 import persistence.exception.TableAlreadyExistsException;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
+public class ImageDAOImpl extends AbstractImageDAO {
 
     // TABLE
     static final String TABLE_NAME = "image";
@@ -52,7 +51,6 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
 
     private static final String COUNT = "SELECT COUNT(*) FROM " + TABLE_NAME;
 
-
     @Autowired
     private Connector connector;
 
@@ -78,11 +76,9 @@ public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
             stat.execute(createTable);
         } catch (SQLException e) {
                 /*
-                User invoke method create() multiple times or table user is not created.
+                Table user is not created.
                  */
-            throw new TableAlreadyExistsException("Table " + TABLE_NAME + " already exists " +
-                    "or " +
-                    "table " + UserDAOImpl.TABLE_NAME + " on which this table references to is not created. " +
+            throw new TableAlreadyExistsException("Table " + UserDAOImpl.TABLE_NAME + " on which this table references to is not created. " +
                     "See stack trace for more details", e);
         } finally {
             DatabaseUtils.closeQuietly(stat);

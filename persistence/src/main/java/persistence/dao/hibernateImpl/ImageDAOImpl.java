@@ -7,7 +7,6 @@ import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import persistence.dao.abstractDAOImpl.AbstractImageDAO;
-import persistence.dao.interfaces.ImageDAO;
 import persistence.exception.PersistenceException;
 import persistence.struct.Image;
 import persistence.utils.HibernateUtils;
@@ -15,7 +14,7 @@ import persistence.utils.HibernateUtils;
 import java.util.List;
 
 @Repository
-public class ImageDAOImpl extends AbstractImageDAO implements ImageDAO {
+public class ImageDAOImpl extends AbstractImageDAO {
 
     @Autowired
     private SessionFactory sessionFactory;

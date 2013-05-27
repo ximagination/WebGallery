@@ -7,7 +7,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import persistence.dao.abstractDAOImpl.AbstractUserDAO;
-import persistence.dao.interfaces.UserDAO;
 import persistence.exception.PersistenceException;
 import persistence.struct.User;
 import persistence.utils.HibernateUtils;
@@ -15,7 +14,7 @@ import persistence.utils.HibernateUtils;
 import java.util.List;
 
 @Repository
-public class UserDAOImpl extends AbstractUserDAO implements UserDAO {
+public class UserDAOImpl extends AbstractUserDAO {
 
     @Autowired
     private SessionFactory sessionFactory;

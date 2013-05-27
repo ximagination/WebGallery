@@ -32,13 +32,13 @@ import java.util.concurrent.RejectedExecutionException;
 @Service
 public class ImageServiceImpl implements ImageService {
 
-    @Value(value = "${persistence.fileManager.imagePreviewWidth}")
+    @Value(value = "${service.fileManager.imagePreviewWidth}")
     private int width;
 
-    @Value(value = "${persistence.fileManager.imagePreviewHeight}")
+    @Value(value = "${service.fileManager.imagePreviewHeight}")
     private int height;
 
-    @Value(value = "${persistence.fileManager.formatName}")
+    @Value(value = "${service.fileManager.formatName}")
     private String formatName;
 
     private ImageDAO imageDAO;

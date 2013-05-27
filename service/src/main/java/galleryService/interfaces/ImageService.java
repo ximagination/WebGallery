@@ -22,4 +22,5 @@ public interface ImageService {
     ImageInfoHolder getImages(int offset, int limit) throws ValidationException;
 
     void createPreviewCopy(int id, byte[] originalBytes) throws IOException;
+
 }

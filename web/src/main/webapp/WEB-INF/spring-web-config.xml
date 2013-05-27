@@ -31,9 +31,13 @@
     <bean class="web.servlets.LoginController">
         <property name="autentificationService" ref="autentificationService"/>
     </bean>
-    <bean class="web.servlets.LogoutController"/>
     <bean class="web.servlets.GalleryController">
         <property name="autentificationService" ref="imageService"/>
+    </bean>
+
+    <bean class="web.servlets.LogoutController"/>
+    <bean class="web.servlets.CommentController">
+        <property name="commentService" ref="commentService"/>
     </bean>
 
     <!--
